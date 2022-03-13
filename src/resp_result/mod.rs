@@ -1,4 +1,3 @@
-use std::any::type_name;
 
 use crate::resp_error::RespError;
 
@@ -20,8 +19,8 @@ impl<T, E> RespResult<T, E> {
         #[cfg(feature = "log")]
         logger::info!(
             "RespResult Mapping Success From `{}` to `{}`",
-            type_name::<T>(),
-            type_name::<N>()
+            std::any::type_name::<T>(),
+            std::any::type_name::<N>()
         );
         match self {
             RespResult::Success(data) => RespResult::Success(f(data)),
@@ -37,8 +36,8 @@ impl<T, E> RespResult<T, E> {
         #[cfg(feature = "log")]
         logger::info!(
             "RespResult Mapping Error From `{}` to `{}`",
-            type_name::<E>(),
-            type_name::<N>()
+            std::any::type_name::<E>(),
+            std::any::type_name::<N>()
         );
         match self {
             RespResult::Success(data) => RespResult::Success(data),
@@ -97,7 +96,7 @@ impl<T, E> RespResult<T, E> {
         #[cfg(feature = "log")]
         logger::error!(
             "RespResult 异常分支 {} => {}",
-            type_name::<E>(),
+            std::any::type_name::<E>(),
             err.description()
         );
         Self::Err(err)

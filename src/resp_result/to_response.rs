@@ -1,14 +1,10 @@
-use actix_web::HttpResponse;
-use axum::{
-    body::{boxed, Full},
-    response::IntoResponse,
-};
-use http::{Response, StatusCode};
+
+use http::StatusCode;
 
 use crate::resp_error::RespError;
 
 use super::RespResult;
-
+#[allow(dead_code)]
 fn prepare_respond<T, E>(r: RespResult<T, E>) -> Result<(Vec<u8>, StatusCode), serde_json::Error>
 where
     T: serde::Serialize,
@@ -51,28 +47,30 @@ where
     Ok((body, status))
 }
 
+#[allow(dead_code)]
 static JSON_TYPE: &str = "application/json";
 
 #[cfg(feature = "for-axum")]
-impl<T, E> IntoResponse for RespResult<T, E>
+impl<T, E> axum::response::IntoResponse for RespResult<T, E>
 where
     T: serde::Serialize,
     E: RespError,
 {
     fn into_response(self) -> axum::response::Response {
         match prepare_respond(self) {
-            Ok((body, status)) => Response::builder()
+            Ok((body, status)) => axum::response::Response::builder()
                 .status(status)
                 .header(http::header::CONTENT_TYPE, JSON_TYPE)
-                .body(boxed(Full::from(body))),
-            Err(e) => Response::builder()
+                .body(axum::body::boxed(axum::body::Full::from(body))),
+            Err(e) => axum::response::Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(boxed(Full::from(e.to_string()))),
+                .body(axum::body::boxed(axum::body::Full::from(e.to_string()))),
         }
         .expect("RespResult 构造响应时发生异常")
     }
 }
 
+#[cfg(feature = "for-actix")]
 impl<T, E> actix_web::Responder for RespResult<T, E>
 where
     T: serde::Serialize,
@@ -82,10 +80,10 @@ where
 
     fn respond_to(self, _req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
         match prepare_respond(self) {
-            Ok((body, status)) => HttpResponse::build(status)
+            Ok((body, status)) => actix_web::HttpResponse::build(status)
                 .content_type(JSON_TYPE)
                 .body(body),
-            Err(e) => HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(e.to_string()),
+            Err(e) => actix_web::HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(e.to_string()),
         }
     }
 }

@@ -47,6 +47,7 @@ where
                     body.serialize_field(SIGNED_STATUS, &true)?;
                 }
                 if cfg.full_field() {
+                    #[cfg(feature = "extra-code")]
                     if cfg.extra_code_local() {
                         body.serialize_field(EXTRA_ERR_CODE, &Option::<()>::None)?;
                     }
@@ -62,6 +63,7 @@ where
                 if cfg.signed_base_status() {
                     body.serialize_field(SIGNED_STATUS, &true)?;
                 }
+                #[cfg(feature = "extra-code")]
                 if cfg.extra_code_local() {
                     body.serialize_field(EXTRA_ERR_CODE, &err.extra_code())?;
                 }

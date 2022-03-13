@@ -5,7 +5,8 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["log", "extra-code", "for-axum", "for-actix"]
+default = []
+full = ["log", "extra-code", "for-axum", "for-actix"]
 log = ["logger"]
 extra-code = []
 for-axum = ["axum"]
