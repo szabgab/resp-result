@@ -4,11 +4,7 @@ use crate::{get_config, resp_error::RespError};
 
 use super::RespResult;
 
-static SIGNED_STATUS: &str = "is-ok";
-#[cfg(feature = "extra-code")]
-static EXTRA_ERR_CODE: &str = "extra-code";
-static ERROR_MESSAGE: &str = "error-message";
-static BODY: &str = "body";
+
 
 impl<T, E> Serialize for RespResult<T, E>
 where
@@ -22,13 +18,13 @@ where
         let cfg = get_config();
         let (mut ok_size, mut err_size) = (1, 1);
         // 简易状态标记
-        if cfg.signed_base_status() {
+        if cfg.signed_base_status().is_some() {
             ok_size += 1;
             err_size += 1;
         }
         //额外的异常码
         #[cfg(feature = "extra-code")]
-        if cfg.extra_code_local() {
+        if cfg.extra_code_local().is_some() {
             if cfg.full_field() {
                 ok_size += 1;
             }
@@ -43,34 +39,34 @@ where
         let resp = match self {
             RespResult::Success(data) => {
                 let mut body = serializer.serialize_struct("RespResult", ok_size)?;
-                if cfg.signed_base_status() {
-                    body.serialize_field(SIGNED_STATUS, &true)?;
+                if let Some(n)=cfg.signed_base_status() {
+                    body.serialize_field(n, &true)?;
                 }
                 if cfg.full_field() {
                     #[cfg(feature = "extra-code")]
-                    if cfg.extra_code_local() {
-                        body.serialize_field(EXTRA_ERR_CODE, &Option::<()>::None)?;
+                    if let Some(ecl)= cfg.extra_code_local() {
+                        body.serialize_field(ecl, &Option::<()>::None)?;
                     }
-                    body.serialize_field(ERROR_MESSAGE, &Option::<()>::None)?;
+                    body.serialize_field(cfg.err_msg_name(), &Option::<()>::None)?;
                 }
 
-                body.serialize_field(BODY, data)?;
+                body.serialize_field(cfg.body_name(), data)?;
 
                 body.end()?
             }
             RespResult::Err(err) => {
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
-                if cfg.signed_base_status() {
-                    body.serialize_field(SIGNED_STATUS, &true)?;
+                if let Some(n)=cfg.signed_base_status() {
+                    body.serialize_field(n, &true)?;
                 }
                 #[cfg(feature = "extra-code")]
-                if cfg.extra_code_local() {
-                    body.serialize_field(EXTRA_ERR_CODE, &err.extra_code())?;
+                if let Some(ecl)= cfg.extra_code_local(){
+                    body.serialize_field(ecl, &err.extra_code())?;
                 }
-                body.serialize_field(ERROR_MESSAGE, &err.description())?;
+                body.serialize_field(cfg.err_msg_name(), &err.description())?;
 
                 if cfg.full_field() {
-                    body.serialize_field(BODY, &Option::<()>::None)?;
+                    body.serialize_field(cfg.body_name(), &Option::<()>::None)?;
                 }
                 body.end()?
             }

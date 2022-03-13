@@ -1,15 +1,22 @@
+#[allow(unused_imports)]
+use std::str::FromStr;
 
-use http::StatusCode;
+use http::{header::HeaderName, HeaderValue, StatusCode};
 
-use crate::resp_error::RespError;
+use crate::{get_config, resp_error::RespError};
 
 use super::RespResult;
 #[allow(dead_code)]
-fn prepare_respond<T, E>(r: RespResult<T, E>) -> Result<(Vec<u8>, StatusCode), serde_json::Error>
+fn prepare_respond<T, E>(
+    r: RespResult<T, E>,
+) -> Result<(Vec<u8>, StatusCode, Option<(HeaderName, HeaderValue)>), serde_json::Error>
 where
     T: serde::Serialize,
     E: RespError,
 {
+    #[allow(unused_variables)]
+    let cfg = get_config();
+
     let vec = serde_json::to_vec(&r);
     let body = match vec {
         Ok(body) => body,
@@ -37,6 +44,25 @@ where
             e.http_code()
         }
     };
+    #[cfg(feature = "extra-code")]
+    let r_header = {
+        match &r {
+            RespResult::Success(_) => None,
+            RespResult::Err(e) => {
+                if let Some(n) = cfg.head_extra_code() {
+                    Some((
+                        HeaderName::from_str(n).expect("Bad HeaderName"),
+                        HeaderValue::from_str(&e.extra_code().to_string())
+                            .expect("Bad HeaderValue"),
+                    ))
+                } else {
+                    None
+                }
+            }
+        }
+    };
+    #[cfg(not(feature = "extra-code"))]
+    let r_header = None;
 
     #[cfg(feature = "log")]
     logger::info!(
@@ -44,7 +70,7 @@ where
         status,
         body.len()
     );
-    Ok((body, status))
+    Ok((body, status, r_header))
 }
 
 #[allow(dead_code)]
@@ -58,10 +84,17 @@ where
 {
     fn into_response(self) -> axum::response::Response {
         match prepare_respond(self) {
-            Ok((body, status)) => axum::response::Response::builder()
-                .status(status)
-                .header(http::header::CONTENT_TYPE, JSON_TYPE)
-                .body(axum::body::boxed(axum::body::Full::from(body))),
+            Ok((body, status, eh)) => match eh {
+                None => axum::response::Response::builder()
+                    .status(status)
+                    .header(http::header::CONTENT_TYPE, JSON_TYPE)
+                    .body(axum::body::boxed(axum::body::Full::from(body))),
+                Some((k, v)) => axum::response::Response::builder()
+                    .status(status)
+                    .header(http::header::CONTENT_TYPE, JSON_TYPE)
+                    .header(k, v)
+                    .body(axum::body::boxed(axum::body::Full::from(body))),
+            },
             Err(e) => axum::response::Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body(axum::body::boxed(axum::body::Full::from(e.to_string()))),
@@ -80,10 +113,17 @@ where
 
     fn respond_to(self, _req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
         match prepare_respond(self) {
-            Ok((body, status)) => actix_web::HttpResponse::build(status)
-                .content_type(JSON_TYPE)
-                .body(body),
-            Err(e) => actix_web::HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(e.to_string()),
+            Ok((body, status, eh)) => match eh {
+                None => actix_web::HttpResponse::build(status)
+                    .content_type(JSON_TYPE)
+                    .body(body),
+                Some((k, v)) => actix_web::HttpResponse::build(status)
+                    .content_type(JSON_TYPE)
+                    .insert_header((k, v))
+                    .body(body),
+            },
+            Err(e) => actix_web::HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(e.to_string()),
         }
     }
 }

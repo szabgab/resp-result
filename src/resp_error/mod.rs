@@ -13,7 +13,7 @@ pub trait RespError {
     }
 
     #[cfg(feature = "extra-code")]
-    type ExtraCode: serde::Serialize + 'static + Sized;
+    type ExtraCode: serde::Serialize + 'static + Sized+std::fmt::Display;
     #[cfg(feature = "extra-code")]
     fn extra_code(&self) -> Self::ExtraCode;
 }
