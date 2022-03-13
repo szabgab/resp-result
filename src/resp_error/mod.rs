@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow};
 
 pub trait RespError {
     fn description(&self) -> Cow<'static, str>;
@@ -17,3 +17,5 @@ pub trait RespError {
     #[cfg(feature = "extra-code")]
     fn extra_code(&self) -> Self::ExtraCode;
 }
+
+

@@ -28,9 +28,3 @@ pub trait SerdeConfig {
         true
     }
 }
-
-#[derive(serde::Deserialize)]
-pub enum BodyType {
-    #[serde(rename = "json")]
-    Json,
-}
