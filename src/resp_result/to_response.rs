@@ -7,6 +7,7 @@ use crate::{get_config, resp_error::RespError};
 
 use super::RespResult;
 #[allow(dead_code)]
+#[inline]
 fn prepare_respond<T, E>(
     r: RespResult<T, E>,
 ) -> Result<(Vec<u8>, StatusCode, Option<(HeaderName, HeaderValue)>), serde_json::Error>
@@ -15,7 +16,7 @@ where
     E: RespError,
 {
     #[allow(unused_variables)]
-    let cfg = get_config();
+    let cfg = &get_config().resp;
 
     let vec = serde_json::to_vec(&r);
     let body = match vec {
@@ -49,7 +50,7 @@ where
         match &r {
             RespResult::Success(_) => None,
             RespResult::Err(e) => {
-                if let Some(n) = cfg.head_extra_code() {
+                if let Some(n) = cfg.extra_code {
                     Some((
                         HeaderName::from_str(n).expect("Bad HeaderName"),
                         HeaderValue::from_str(&e.extra_code().to_string())
@@ -82,6 +83,7 @@ where
     T: serde::Serialize,
     E: RespError,
 {
+    #[inline]
     fn into_response(self) -> axum::response::Response {
         match prepare_respond(self) {
             Ok((body, status, eh)) => match eh {
@@ -110,7 +112,8 @@ where
     E: RespError,
 {
     type Body = actix_web::body::BoxBody;
-
+    
+    #[inline]
     fn respond_to(self, _req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
         match prepare_respond(self) {
             Ok((body, status, eh)) => match eh {
