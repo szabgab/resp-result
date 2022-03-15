@@ -2,7 +2,7 @@
 name = "resp-result"
 version = "0.1.0"
 edition = "2021"
-authors = ["FrozenString<964413011@qq.com>"]
+authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum or Actix Response"
 homepage = "https://github.com/Goodjooy/resp-result"
 license = "MIT"
