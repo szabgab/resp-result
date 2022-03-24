@@ -1,8 +1,10 @@
 use std::ops::{ControlFlow, FromResidual, Try};
 
+use crate::RespError;
+
 use super::RespResult;
 
-impl<T, E> Try for RespResult<T, E> {
+impl<T, E:RespError> Try for RespResult<T, E> {
     type Output = T;
 
     type Residual = E;
@@ -14,15 +16,22 @@ impl<T, E> Try for RespResult<T, E> {
     #[inline]
     fn branch(self) -> std::ops::ControlFlow<Self::Residual, Self::Output> {
         match self {
-            RespResult::Success(data) => ControlFlow::Continue(data),
-            RespResult::Err(e) => ControlFlow::Break(e),
+            RespResult::Success(data) => {
+                #[cfg(feature = "log")]
+                logger::info!("RespResult ControlFlow Continue");
+                ControlFlow::Continue(data)
+            }
+            RespResult::Err(e) => {
+                #[cfg(feature = "log")]
+                logger::error!("RespResult ControlFlow Break : `{}`",&e.description());
+                ControlFlow::Break(e)},
         }
     }
 }
 
-impl<T, E> FromResidual for RespResult<T, E> {
+impl<T, E, Ei: Into<E>> FromResidual<Ei> for RespResult<T, E> {
     #[inline]
-    fn from_residual(residual: <Self as Try>::Residual) -> Self {
-        Self::Err(residual)
+    fn from_residual(residual: Ei) -> Self {
+        Self::Err(residual.into())
     }
 }
