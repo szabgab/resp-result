@@ -57,7 +57,7 @@ where
             RespResult::Err(err) => {
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
                 if let Some(n)=cfg.signed_base_status {
-                    body.serialize_field(n, &true)?;
+                    body.serialize_field(n, &false)?;
                 }
                 #[cfg(feature = "extra-code")]
                 if let Some(ecl)= cfg.extra_code{
