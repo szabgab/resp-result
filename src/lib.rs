@@ -1,11 +1,13 @@
 #![feature(try_trait_v2)]
 mod config;
+mod convert;
 mod owner_leak;
 mod resp_error;
 mod resp_result;
 
 use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
+pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use resp_error::RespError;
 pub use resp_result::RespResult;
 
