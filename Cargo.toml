@@ -1,6 +1,6 @@
 [package]
 name = "resp-result"
-version = "0.1.4"
+version = "0.1.7"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum or Actix Response"
