@@ -54,17 +54,60 @@ pub(crate) struct InnerSerdeConfig {
     pub(crate) signed_base_status: Option<&'static str>,
     #[cfg(feature = "extra-code")]
     pub(crate) extra_code: Option<&'static str>,
+    pub(crate) field_size: FieldSize,
 }
 
 impl InnerSerdeConfig {
     pub(crate) fn into_inner<C: SerdeConfig>(cfg: &C) -> Self {
-        Self {
+        let mut s = Self {
             body_name: cfg.body_name().leak(),
             err_msg_name: cfg.err_msg_name().leak(),
             full_field: cfg.full_field(),
             signed_base_status: cfg.signed_base_status().leak(),
             #[cfg(feature = "extra-code")]
             extra_code: cfg.extra_code().leak(),
+            field_size: Default::default(),
+        };
+
+        let f = FieldSize::new(&s);
+        s.field_size = f;
+
+        s
+    }
+
+    pub(crate) fn get_field_size(&self) -> (usize, usize) {
+        let FieldSize { ok_size, err_size } = self.field_size;
+        (ok_size, err_size)
+    }
+}
+
+#[derive(Debug, Default)]
+pub(crate) struct FieldSize {
+    ok_size: usize,
+    err_size: usize,
+}
+
+impl FieldSize {
+    pub(crate) fn new(cfg: &InnerSerdeConfig) -> Self {
+        let (mut ok_size, mut err_size) = (1, 1);
+        // 简易状态标记
+        if cfg.signed_base_status.is_some() {
+            ok_size += 1;
+            err_size += 1;
         }
+        //额外的异常码
+        #[cfg(feature = "extra-code")]
+        if cfg.extra_code.is_some() {
+            if cfg.full_field {
+                ok_size += 1;
+            }
+            err_size += 1;
+        }
+
+        if cfg.full_field {
+            ok_size += 1;
+            err_size += 1;
+        }
+        Self { ok_size, err_size }
     }
 }

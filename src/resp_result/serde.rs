@@ -4,8 +4,6 @@ use crate::{get_config, resp_error::RespError};
 
 use super::RespResult;
 
-
-
 impl<T, E> Serialize for RespResult<T, E>
 where
     T: Serialize,
@@ -16,35 +14,20 @@ where
         S: serde::Serializer,
     {
         let cfg = &get_config().serde;
-        let (mut ok_size, mut err_size) = (1, 1);
-        // 简易状态标记
-        if cfg.signed_base_status.is_some() {
-            ok_size += 1;
-            err_size += 1;
-        }
-        //额外的异常码
-        #[cfg(feature = "extra-code")]
-        if cfg.extra_code.is_some() {
-            if cfg.full_field {
-                ok_size += 1;
-            }
-            err_size += 1;
-        }
+        let (ok_size,err_size)=cfg.get_field_size();
 
-        if cfg.full_field {
-            ok_size += 1;
-            err_size += 1;
-        }
+        #[cfg(feature = "log")]
+        logger::debug!("开始序列化 成功字段 : {} 失败字段：{}", ok_size, err_size);
 
         let resp = match self {
             RespResult::Success(data) => {
                 let mut body = serializer.serialize_struct("RespResult", ok_size)?;
-                if let Some(n)=cfg.signed_base_status {
+                if let Some(n) = cfg.signed_base_status {
                     body.serialize_field(n, &true)?;
                 }
                 if cfg.full_field {
                     #[cfg(feature = "extra-code")]
-                    if let Some(ecl)= cfg.extra_code {
+                    if let Some(ecl) = cfg.extra_code {
                         body.serialize_field(ecl, &Option::<()>::None)?;
                     }
                     body.serialize_field(cfg.err_msg_name, &Option::<()>::None)?;
@@ -56,11 +39,11 @@ where
             }
             RespResult::Err(err) => {
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
-                if let Some(n)=cfg.signed_base_status {
+                if let Some(n) = cfg.signed_base_status {
                     body.serialize_field(n, &false)?;
                 }
                 #[cfg(feature = "extra-code")]
-                if let Some(ecl)= cfg.extra_code{
+                if let Some(ecl) = cfg.extra_code {
                     body.serialize_field(ecl, &err.extra_code())?;
                 }
                 body.serialize_field(cfg.err_msg_name, &err.description())?;
