@@ -17,7 +17,7 @@ impl<T, E> RespResult<T, E> {
         F: FnOnce(T) -> N,
     {
         #[cfg(feature = "log")]
-        logger::info!(
+        logger::debug!(
             "RespResult Mapping Success From `{}` to `{}`",
             std::any::type_name::<T>(),
             std::any::type_name::<N>()
@@ -34,7 +34,7 @@ impl<T, E> RespResult<T, E> {
         F: FnOnce(E) -> N,
     {
         #[cfg(feature = "log")]
-        logger::info!(
+        logger::debug!(
             "RespResult Mapping Error From `{}` to `{}`",
             std::any::type_name::<E>(),
             std::any::type_name::<N>()

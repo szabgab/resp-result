@@ -1,3 +1,5 @@
+
+
 #[allow(unused_imports)]
 use std::str::FromStr;
 
@@ -32,12 +34,12 @@ where
     let status = match r {
         RespResult::Success(_) => {
             #[cfg(feature = "log")]
-            logger::info!("RespResult 接管的 成功 响应",);
+            logger::debug!("RespResult 接管的 成功 响应",);
             StatusCode::OK
         }
         RespResult::Err(ref e) => {
             #[cfg(feature = "log")]
-            logger::info!(
+            logger::debug!(
                 "RespResult 接管的 异常 响应 | {} => {}",
                 std::any::type_name::<E>(),
                 e.description()

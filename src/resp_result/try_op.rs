@@ -18,7 +18,7 @@ impl<T, E:RespError> Try for RespResult<T, E> {
         match self {
             RespResult::Success(data) => {
                 #[cfg(feature = "log")]
-                logger::info!("RespResult ControlFlow Continue");
+                logger::debug!("RespResult ControlFlow Continue");
                 ControlFlow::Continue(data)
             }
             RespResult::Err(e) => {
