@@ -9,7 +9,7 @@ use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use resp_error::RespError;
-pub use resp_result::RespResult;
+pub use resp_result::{RespResult,Nil};
 
 static RESP_RESULT_CONFIG: state::Storage<InnerConfig> = state::Storage::new();
 

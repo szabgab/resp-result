@@ -1,6 +1,6 @@
 [package]
 name = "resp-result"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum or Actix Response"
@@ -18,8 +18,8 @@ default = []
 full = ["log", "extra-code", "for-axum", "for-actix"]
 log = ["logger"]
 extra-code = []
-for-axum = ["axum"]
-for-actix = ["actix-web"]
+for-axum = ["axum","mime"]
+for-actix = ["actix-web","mime"]
 for-rocket = []
 
 [dependencies]
@@ -43,6 +43,10 @@ version = "^0.4"
 [dependencies.actix-web]
 optional = true
 version = "^4"
+
+[dependencies.mime]
+version = "0.3"
+optional=true
 
 [dev-dependencies]
 serde_json = "1"
