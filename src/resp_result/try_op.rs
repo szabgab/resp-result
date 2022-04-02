@@ -1,13 +1,16 @@
-use std::ops::{ControlFlow, FromResidual, Try};
+use std::{
+    convert::{self, Infallible},
+    ops::{ControlFlow, FromResidual, Try},
+};
 
 use crate::RespError;
 
 use super::RespResult;
 
-impl<T, E:RespError> Try for RespResult<T, E> {
+impl<T, E: RespError> Try for RespResult<T, E> {
     type Output = T;
 
-    type Residual = E;
+    type Residual = RespResult<convert::Infallible, E>;
 
     #[inline]
     fn from_output(output: Self::Output) -> Self {
@@ -23,15 +26,70 @@ impl<T, E:RespError> Try for RespResult<T, E> {
             }
             RespResult::Err(e) => {
                 #[cfg(feature = "log")]
-                logger::error!("RespResult ControlFlow Break : `{}`",&e.description());
-                ControlFlow::Break(e)},
+                logger::error!("RespResult ControlFlow Break : `{}`", &e.description());
+                ControlFlow::Break(RespResult::Err(e))
+            }
         }
     }
 }
 
-impl<T, E, Ei: Into<E>> FromResidual<Ei> for RespResult<T, E> {
+impl<T, E, Ei> FromResidual<RespResult<Infallible, Ei>> for RespResult<T, E>
+where
+    E: From<Ei>,
+{
     #[inline]
-    fn from_residual(residual: Ei) -> Self {
-        Self::Err(residual.into())
+    fn from_residual(residual: RespResult<Infallible, Ei>) -> Self {
+        match residual {
+            RespResult::Err(e) => Self::Err(From::from(e)),
+            RespResult::Success(_) => unreachable!(),
+        }
+    }
+}
+
+impl<T, E, F: From<E>> FromResidual<Result<Infallible, E>> for RespResult<T, F> {
+    fn from_residual(residual: Result<Infallible, E>) -> Self {
+        match residual {
+            Err(e) => Self::Err(F::from(e)),
+            Ok(_) => unreachable!(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{RespError, RespResult};
+
+    struct A;
+    struct B;
+
+    impl From<A> for MockA {
+        fn from(a: A) -> Self {
+            MockA::A(a)
+        }
+    }
+
+    impl From<B> for MockA {
+        fn from(v: B) -> Self {
+            MockA::B(v)
+        }
+    }
+
+    enum MockA {
+        A(A),
+        B(B),
+    }
+    impl RespError for MockA {
+        fn description(&self) -> std::borrow::Cow<'static, str> {
+            "MockA".into()
+        }
+    }
+    // test wether ? can work on Result
+    fn _testb()->RespResult<u32,MockA>{
+        let a = Result::<_,A>::Ok(11u32)?;
+        let _b =RespResult::<_,MockA>::ok(a)?;
+        let c = Result::<u32,B>::Err(B)?;
+
+        RespResult::Success(c)
+
     }
 }
