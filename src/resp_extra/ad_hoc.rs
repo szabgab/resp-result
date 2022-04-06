@@ -4,7 +4,7 @@ pub struct AdHoc<F>(
 );
 
 #[cfg(all(feature = "for-actix", not(feature = "for-axum")))]
-impl<F> RespExtra for AdHoc<F>
+impl<F> super::RespExtra for AdHoc<F>
 where
     F: Fn(&mut actix_web::HttpResponseBuilder) + 'static,
 {
@@ -14,7 +14,7 @@ where
 }
 
 #[cfg(all(feature = "for-axum", not(feature = "for-actix")))]
-impl<F> RespExtra for AdHoc<F>
+impl<F> super::RespExtra for AdHoc<F>
 where
     F: Fn(http::response::Builder) -> http::response::Builder,
 {
