@@ -1,6 +1,6 @@
 [package]
 name = "resp-result"
-version = "0.1.9"
+version = "0.2.0"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum or Actix Response"
@@ -19,9 +19,11 @@ axum-full= ["log", "extra-code", "for-axum"]
 actix-full=["log", "extra-code", "for-actix"]
 log = ["logger"]
 extra-code = []
-for-axum = ["axum","mime"]
-for-actix = ["actix-web","mime"]
+extra-resp=[]
+for-axum = ["axum","mime","extra-resp"]
+for-actix = ["actix-web","mime","extra-resp"]
 for-rocket = []
+
 
 [dependencies]
 state = "0.5"
