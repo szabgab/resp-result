@@ -1,9 +1,9 @@
 #![feature(try_trait_v2)]
-mod resp_extra;
 mod config;
 mod convert;
 mod owner_leak;
 mod resp_error;
+mod resp_extra;
 mod resp_result;
 
 use config::InnerConfig;
@@ -11,6 +11,9 @@ pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use resp_error::RespError;
 pub use resp_result::{Nil, RespResult};
+
+#[cfg(all(feature = "for-actix", feature = "for-axum"))]
+compile_error!("`for-actix` and `for-axum` can not use at the some time");
 
 static RESP_RESULT_CONFIG: state::Storage<InnerConfig> = state::Storage::new();
 
