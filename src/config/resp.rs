@@ -1,5 +1,7 @@
 #[allow(unused_imports)]
 use std::borrow::Cow;
+use http::header::HeaderName;
+
 #[allow(unused_imports)]
 use crate::owner_leak::OwnerLeaker;
 /// 生成 Resp 时的配置
@@ -12,7 +14,7 @@ pub trait RespConfig {
 
 pub(crate) struct InnerRespConfig {
     #[cfg(feature = "extra-code")]
-    pub(crate) extra_code: Option<&'static str>,
+    pub(crate) extra_code: Option<HeaderName>,
 }
 
 impl InnerRespConfig {
@@ -20,7 +22,7 @@ impl InnerRespConfig {
     pub fn into_inner<C: RespConfig>(cfg: &C) -> Self {
         Self {
             #[cfg(feature = "extra-code")]
-            extra_code: cfg.head_extra_code().leak(),
+            extra_code: cfg.head_extra_code().leak().map(HeaderName::from_static),
         }
     }
 }
