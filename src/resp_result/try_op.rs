@@ -82,14 +82,20 @@ mod test {
         fn description(&self) -> std::borrow::Cow<'static, str> {
             "MockA".into()
         }
+
+        #[cfg(feature = "extra-code")]
+        type ExtraCode = String;
+        #[cfg(feature = "extra-code")]
+        fn extra_code(&self) -> Self::ExtraCode {
+            String::new()
+        }
     }
     // test wether ? can work on Result
-    fn _testb()->RespResult<u32,MockA>{
-        let a = Result::<_,A>::Ok(11u32)?;
-        let _b =RespResult::<_,MockA>::ok(a)?;
-        let c = Result::<u32,B>::Err(B)?;
+    fn _testb() -> RespResult<u32, MockA> {
+        let a = Result::<_, A>::Ok(11u32)?;
+        let _b = RespResult::<_, MockA>::ok(a)?;
+        let c = Result::<u32, B>::Err(B)?;
 
         RespResult::Success(c)
-
     }
 }

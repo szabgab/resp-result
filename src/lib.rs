@@ -1,4 +1,5 @@
 #![feature(try_trait_v2)]
+mod resp_extra;
 mod config;
 mod convert;
 mod owner_leak;
@@ -9,7 +10,7 @@ use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use resp_error::RespError;
-pub use resp_result::{RespResult,Nil};
+pub use resp_result::{Nil, RespResult};
 
 static RESP_RESULT_CONFIG: state::Storage<InnerConfig> = state::Storage::new();
 
@@ -28,8 +29,7 @@ pub(crate) fn get_config() -> &'static InnerConfig {
     } else {
         #[cfg(feature = "log")]
         logger::warn!("未配置RespResult 配置文件，将使用默认配置");
-        let cfg = RESP_RESULT_CONFIG.get_or_set(Default::default);
-        cfg
+        RESP_RESULT_CONFIG.get_or_set(Default::default)
     }
 }
 
