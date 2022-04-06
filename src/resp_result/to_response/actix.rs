@@ -46,8 +46,9 @@ where
         }
         None => {}
     }
-    if let crate::RespResult::Success(data) = this {
-        data.actix_extra(&mut resp)
+    match this {
+        crate::RespResult::Success(data) => data.actix_extra(&mut resp),
+        crate::RespResult::Err(err) => err.actix_extra(&mut resp),
     }
     resp.body(body)
 }

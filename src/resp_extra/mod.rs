@@ -22,11 +22,6 @@ where
     fn actix_extra(&self, resp: &mut actix_web::HttpResponseBuilder) {
         self.0(resp)
     }
-
-    #[cfg(all(feature = "for-axum", not(feature = "for-actix")))]
-    fn axum_extra(self, resp: http::response::Builder) -> http::response::Builder {
-        resp
-    }
 }
 
 #[cfg(all(feature = "for-axum", not(feature = "for-actix")))]
