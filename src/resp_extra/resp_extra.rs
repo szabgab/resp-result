@@ -10,4 +10,5 @@ pub trait RespExtra: Sized {
     }
 }
 
+#[cfg(feature = "extra-resp")]
 impl<T> RespExtra for T where T: serde::Serialize + 'static {}
