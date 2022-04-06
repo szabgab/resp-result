@@ -7,7 +7,7 @@ use std::str::FromStr;
 use http::{header::HeaderName, HeaderValue, StatusCode};
 
 use super::RespResult;
-use crate::{get_config, resp_error::RespError};
+use crate::{get_config, resp_error::RespError, resp_extra::RespBody};
 
 #[cfg(feature = "mime")]
 #[allow(dead_code)]
@@ -19,7 +19,7 @@ fn prepare_respond<T, E>(
     r: &RespResult<T, E>,
 ) -> (Vec<u8>, StatusCode, Option<(HeaderName, HeaderValue)>)
 where
-    T: serde::Serialize,
+    T: RespBody,
     E: RespError,
 {
     #[allow(unused_variables)]

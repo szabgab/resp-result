@@ -1,7 +1,7 @@
 #[cfg(feature = "for-actix")]
 impl<T, E> actix_web::Responder for crate::RespResult<T, E>
 where
-    T: serde::Serialize,
+    T: crate::resp_extra::RespBody,
     E: crate::RespError,
 {
     type Body = actix_web::body::BoxBody;
@@ -32,7 +32,7 @@ where
 #[cfg(feature = "for-actix")]
 fn to_actix_resp<T, E>(this: &crate::RespResult<T, E>) -> actix_web::HttpResponse
 where
-    T: serde::Serialize,
+    T: crate::resp_extra::RespBody,
     E: crate::RespError,
 {
     let (body, status, extra_code) = super::prepare_respond(this);
@@ -45,6 +45,10 @@ where
             resp.insert_header(e_header);
         }
         None => {}
+    }
+    match this {
+        crate::RespResult::Success(data) => data.actix_extra(&mut resp),
+        crate::RespResult::Err(err) => err.actix_extra(&mut resp),
     }
     resp.body(body)
 }
