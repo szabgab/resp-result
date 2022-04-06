@@ -14,7 +14,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["acitx-full"]
+default = ["axum-full"]
 full = ["log", "extra-code", "for-axum", "for-actix"]
 axum-full= ["log", "extra-code", "for-axum"]
 acitx-full=["log", "extra-code", "for-actix"]

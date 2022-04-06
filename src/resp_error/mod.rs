@@ -1,6 +1,6 @@
-use std::{borrow::Cow};
+use std::borrow::Cow;
 
-pub trait RespError {
+pub trait RespError: crate::resp_extra::RespExtra {
     fn description(&self) -> Cow<'static, str>;
 
     #[cfg(feature = "log")]
@@ -13,9 +13,7 @@ pub trait RespError {
     }
 
     #[cfg(feature = "extra-code")]
-    type ExtraCode: serde::Serialize + 'static + Sized+std::fmt::Display;
+    type ExtraCode: serde::Serialize + 'static + Sized + std::fmt::Display;
     #[cfg(feature = "extra-code")]
     fn extra_code(&self) -> Self::ExtraCode;
 }
-
-

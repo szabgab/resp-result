@@ -57,11 +57,10 @@ where
 #[cfg(all(feature = "for-axum", not(feature = "for-actix")))]
 impl<T, E> RespExtra for ExtraWrap<T, E>
 where
-    T: serde::Serialize,
     E: super::resp_extra::RespExtra,
 {
-    fn actix_extra(&self, resp: &mut actix_web::HttpResponseBuilder) {
-        self.extra.actix_extra(resp)
+    fn axum_extra(&self, resp: http::response::Builder) -> http::response::Builder {
+        self.extra.axum_extra(resp)
     }
 }
 

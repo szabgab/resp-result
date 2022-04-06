@@ -57,7 +57,7 @@ impl<T, E, F: From<E>> FromResidual<Result<Infallible, E>> for RespResult<T, F> 
 
 #[cfg(test)]
 mod test {
-    use crate::{RespError, RespResult};
+    use crate::{RespError, RespResult, resp_extra::RespExtra};
 
     struct A;
     struct B;
@@ -90,6 +90,11 @@ mod test {
             String::new()
         }
     }
+
+    impl RespExtra for MockA {
+        
+    }
+
     // test wether ? can work on Result
     fn _testb() -> RespResult<u32, MockA> {
         let a = Result::<_, A>::Ok(11u32)?;

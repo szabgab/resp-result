@@ -1,7 +1,7 @@
 #[cfg(feature = "for-axum")]
 impl<T, E> axum::response::IntoResponse for crate::RespResult<T, E>
 where
-    T: serde::Serialize,
+    T: crate::resp_extra::RespBody,
     E: crate::RespError,
 {
     #[inline]
@@ -11,11 +11,17 @@ where
             .status(status)
             .header(http::header::CONTENT_TYPE, super::JSON_TYPE.as_ref());
 
-        match eh {
+        let builder = match eh {
             None => builder,
             Some((k, v)) => builder.header(k, v),
-        }
-        .body(axum::body::boxed(axum::body::Full::from(body)))
-        .expect("RespResult 构造响应时发生异常")
+        };
+        let builder = match self {
+            crate::RespResult::Success(ref data) => data.axum_extra(builder),
+            crate::RespResult::Err(ref err) => err.axum_extra(builder),
+        };
+
+        builder
+            .body(axum::body::boxed(axum::body::Full::from(body)))
+            .expect("RespResult 构造响应时发生异常")
     }
 }
