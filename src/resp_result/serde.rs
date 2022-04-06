@@ -1,12 +1,12 @@
 use serde::{ser::SerializeStruct, Serialize};
 
-use crate::{get_config, resp_error::RespError};
+use crate::{get_config, resp_error::RespError, resp_extra::RespBody};
 
 use super::RespResult;
 
 impl<T, E> Serialize for RespResult<T, E>
 where
-    T: Serialize,
+    T: RespBody,
     E: RespError,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -35,7 +35,7 @@ where
                     body.serialize_field(cfg.err_msg_name, &Option::<()>::None)?;
                 }
 
-                body.serialize_field(cfg.body_name, data)?;
+                body.serialize_field(cfg.body_name, data.load_serde())?;
 
                 body.end()?
             }
