@@ -15,15 +15,14 @@ rustdoc-args = ["--cfg", "docsrs"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
 default = []
-axum-full= ["log", "extra-code", "for-axum"]
-actix-full=["log", "extra-code", "for-actix"]
+axum-full = ["log", "extra-code", "for-axum"]
+actix-full = ["log", "extra-code", "for-actix"]
 log = ["logger"]
 extra-code = []
-extra-resp=[]
-for-axum = ["axum","mime","extra-resp"]
-for-actix = ["actix-web","mime","extra-resp"]
+extra-resp = []
+for-axum = ["axum", "mime", "extra-resp"]
+for-actix = ["actix-web", "mime", "extra-resp"]
 for-rocket = []
-
 
 [dependencies]
 state = "0.5"
@@ -49,7 +48,7 @@ version = "^4"
 
 [dependencies.mime]
 version = "0.3"
-optional=true
+optional = true
 
 [dev-dependencies]
 serde_json = "1"

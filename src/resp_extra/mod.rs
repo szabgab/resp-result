@@ -15,3 +15,8 @@ pub use {resp_extra::RespExtra, serde_data::LoadSerde};
 pub trait RespBody: resp_extra::RespExtra + serde_data::LoadSerde {}
 
 impl<T> RespBody for T where T: serde::Serialize + 'static {}
+
+pub trait ExtraRespExt<E: RespExtra + Clone> {
+    type Output;
+    fn mapping_by(self, extra: E) -> Self::Output;
+}

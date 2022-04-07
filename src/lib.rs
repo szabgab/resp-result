@@ -10,9 +10,9 @@ use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use resp_error::RespError;
-pub use resp_extra::RespExtra;
 #[cfg(feature = "extra-resp")]
 pub use resp_extra::{AdHoc, ExtraWrap};
+pub use resp_extra::{ExtraRespExt, RespExtra};
 pub use resp_result::{Nil, RespResult};
 
 #[cfg(all(feature = "for-actix", feature = "for-axum"))]
