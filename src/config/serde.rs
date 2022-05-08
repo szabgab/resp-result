@@ -96,15 +96,12 @@ impl FieldSize {
             err_size += 1;
         }
         //额外的异常码
-        if cfg!(feature = "extra-code") {
-            if cfg.extra_code.is_some() {
-                if cfg.full_field {
-                    ok_size += 1;
-                }
-                // if has extra code 
-                // one more error size
-                err_size += 1;
+        #[cfg(feature = "extra-code")]
+        if cfg.extra_code.is_some() {
+            if cfg.full_field {
+                ok_size += 1;
             }
+            err_size += 1;
         }
 
         if cfg.full_field {
