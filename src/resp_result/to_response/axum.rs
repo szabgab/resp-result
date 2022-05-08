@@ -16,8 +16,8 @@ where
             Some((k, v)) => builder.header(k, v),
         };
         let builder = match self {
-            crate::RespResult::Success(ref data) => data.axum_extra(builder),
-            crate::RespResult::Err(ref err) => err.axum_extra(builder),
+            crate::RespResult::Success(data) => data.axum_extra(builder),
+            crate::RespResult::Err(err) => err.axum_extra(builder),
         };
 
         builder

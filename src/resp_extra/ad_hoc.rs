@@ -18,7 +18,7 @@ impl<F> super::RespExtra for AdHoc<F>
 where
     F: Fn(http::response::Builder) -> http::response::Builder,
 {
-    fn axum_extra(&self, resp: http::response::Builder) -> http::response::Builder {
+    fn axum_extra(self, resp: http::response::Builder) -> http::response::Builder {
         (&self.0)(resp)
     }
 }

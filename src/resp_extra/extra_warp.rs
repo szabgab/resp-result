@@ -71,7 +71,7 @@ impl<T, E> RespExtra for ExtraWrap<T, E>
 where
     E: super::resp_extra::RespExtra,
 {
-    fn axum_extra(&self, resp: http::response::Builder) -> http::response::Builder {
+    fn axum_extra(self, resp: http::response::Builder) -> http::response::Builder {
         self.extra.axum_extra(resp)
     }
 }
