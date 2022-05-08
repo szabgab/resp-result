@@ -55,20 +55,22 @@ where
             e.http_code()
         }
     };
-    #[cfg(feature = "extra-code")]
-    let r_header = {
-        match r {
-            RespResult::Success(_) => None,
-            RespResult::Err(e) => cfg.extra_code.as_ref().map(|n| {
-                (
-                    n.clone(),
-                    HeaderValue::from_str(&e.extra_code().to_string()).expect("Bad HeaderValue"),
-                )
-            }),
+    let r_header = if cfg!(feature = "extra-code") {
+        {
+            match r {
+                RespResult::Success(_) => None,
+                RespResult::Err(e) => cfg.extra_code.as_ref().map(|n| {
+                    (
+                        n.clone(),
+                        HeaderValue::from_str(&e.extra_code().to_string())
+                            .expect("Bad HeaderValue"),
+                    )
+                }),
+            }
         }
+    } else {
+        None
     };
-    #[cfg(not(feature = "extra-code"))]
-    let r_header = None;
 
     #[cfg(feature = "log")]
     logger::info!(
