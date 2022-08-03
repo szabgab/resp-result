@@ -43,7 +43,7 @@ where
                 #[cfg(feature = "log")]
                 {
                     logger::debug!("序列化失败情况结果");
-                    logger::error!("错误信息 : {}",err.description())   
+                    logger::error!("错误信息 : {}", err.description())
                 }
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
                 if let Some(n) = cfg.signed_base_status {

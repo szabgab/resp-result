@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
-use std::borrow::Cow;
-#[allow(unused_imports)]
 use http::header::HeaderName;
+#[allow(unused_imports)]
+use std::borrow::Cow;
 
 #[allow(unused_imports)]
 use crate::owner_leak::OwnerLeaker;

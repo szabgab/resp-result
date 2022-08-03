@@ -1,5 +1,5 @@
 mod actix;
-mod axum;
+pub mod axum;
 
 #[allow(unused_imports)]
 use std::str::FromStr;
@@ -14,6 +14,7 @@ use crate::{get_config, resp_error::RespError, resp_extra::RespBody};
 static JSON_TYPE: &mime::Mime = &mime::APPLICATION_JSON;
 
 #[allow(dead_code)]
+#[allow(clippy::map_identity)]
 #[inline]
 fn prepare_respond<T, E>(
     r: &RespResult<T, E>,
