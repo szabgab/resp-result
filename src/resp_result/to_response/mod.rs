@@ -1,5 +1,5 @@
 mod actix;
-mod axum;
+pub mod axum;
 
 #[allow(unused_imports)]
 use std::str::FromStr;

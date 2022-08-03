@@ -6,6 +6,9 @@ mod resp_error;
 mod resp_extra;
 mod resp_result;
 
+#[cfg(feature = "for-axum")]
+pub use resp_result::to_response::axum::axum_respond_part;
+
 use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
