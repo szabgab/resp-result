@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 
-
 pub trait RespError: crate::resp_extra::RespExtra {
     fn description(&self) -> Cow<'static, str>;
 
@@ -19,6 +18,5 @@ pub trait RespError: crate::resp_extra::RespExtra {
     fn extra_code(&self) -> Self::ExtraCode;
 }
 
-
-#[cfg(not(feature="extra-resp"))]
-impl<T> crate::RespExtra for T{}
+#[cfg(not(feature = "extra-resp"))]
+impl<T> crate::RespExtra for T {}

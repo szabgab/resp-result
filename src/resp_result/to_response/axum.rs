@@ -168,7 +168,7 @@ pub mod axum_respond_part {
             )
             .await;
 
-            println!("resp : {:?}",resp);
+            println!("resp : {:?}", resp);
         }
     }
 }

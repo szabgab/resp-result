@@ -2,6 +2,7 @@
 mod ad_hoc;
 #[cfg(feature = "extra-resp")]
 mod extra_warp;
+#[allow(clippy::module_inception)]
 mod resp_extra;
 mod serde_data;
 
@@ -10,7 +11,7 @@ pub use ad_hoc::AdHoc;
 #[cfg(feature = "extra-resp")]
 pub use extra_warp::ExtraWrap;
 
-pub use {resp_extra::RespExtra, serde_data::LoadSerde};
+pub use {self::resp_extra::RespExtra, serde_data::LoadSerde};
 
 pub trait RespBody: resp_extra::RespExtra + serde_data::LoadSerde {}
 
