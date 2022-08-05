@@ -6,18 +6,12 @@ where
 {
     #[inline]
     fn into_response(self) -> axum::response::Response {
-        let (body, status, eh) = super::prepare_respond(&self);
-        let builder = axum::response::Response::builder()
-            .status(status)
-            .header(http::header::CONTENT_TYPE, super::JSON_TYPE.as_ref());
+        let respond = super::PrepareRespond::from_resp_result(&self);
+        let mut builder = axum::response::Response::builder().status(respond.status);
 
-        let builder = match eh {
-            None => builder,
-            Some((k, v)) => builder.header(k, v),
-        };
-
+        builder.headers_mut().expect("RespResult 构造响应时发生异常").extend(respond.headers);
         builder
-            .body(axum::body::boxed(axum::body::Full::from(body)))
+            .body(axum::body::boxed(axum::body::Full::from(respond.body)))
             .expect("RespResult 构造响应时发生异常")
     }
 }

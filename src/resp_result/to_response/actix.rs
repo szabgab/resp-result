@@ -35,16 +35,21 @@ where
     T: crate::resp_body::RespBody,
     E: crate::RespError,
 {
-    let (body, status, extra_code) = super::prepare_respond(this);
-    let mut resp = actix_web::HttpResponse::build(status);
+    let respond = super::PrepareRespond::from_resp_result(this);
+    let mut resp = actix_web::HttpResponse::build(respond.status);
 
-    resp.content_type(super::JSON_TYPE.as_ref());
-
-    match extra_code {
-        Some(e_header) => {
-            resp.insert_header(e_header);
-        }
-        None => {}
+    let mut last_head = None;
+    for (k, v) in respond.headers {
+        let key = if let Some(name) = k {
+            last_head.replace(name.clone());
+            name
+        } else if let Some(name) = last_head.clone() {
+            name
+        } else {
+            panic!("Unknown Header Key")
+        };
+        resp.append_header((key, v));
     }
-    resp.body(body)
+
+    resp.body(respond.body)
 }
