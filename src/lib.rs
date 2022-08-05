@@ -6,6 +6,7 @@ mod resp_error;
 mod resp_extra;
 mod resp_result;
 
+use once_cell::sync::OnceCell;
 #[cfg(feature = "for-axum")]
 pub use resp_result::to_response::axum::axum_respond_part;
 
@@ -21,25 +22,22 @@ pub use resp_result::{Nil, RespResult};
 #[cfg(all(feature = "for-actix", feature = "for-axum"))]
 compile_error!("`for-actix` and `for-axum` can not use at the some time");
 
-static RESP_RESULT_CONFIG: state::Storage<InnerConfig> = state::Storage::new();
+static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
 pub fn set_config<C: ConfigTrait>(cfg: &C) {
     let inner = InnerConfig::from_cfg(cfg);
 
-    let rsp = RESP_RESULT_CONFIG.set(inner);
-    if !rsp {
+    if RESP_RESULT_CONFIG.set(inner).is_err() {
         panic!("Resp Result 配置已经被设置了")
     }
 }
 
 pub(crate) fn get_config() -> &'static InnerConfig {
-    if let Some(cfg) = RESP_RESULT_CONFIG.try_get() {
-        cfg
-    } else {
+    RESP_RESULT_CONFIG.get_or_init(|| {
         #[cfg(feature = "log")]
         logger::warn!("未配置RespResult 配置文件，将使用默认配置");
-        RESP_RESULT_CONFIG.get_or_set(Default::default)
-    }
+        Default::default()
+    })
 }
 
 pub fn leak_string(s: String) -> &'static str {
