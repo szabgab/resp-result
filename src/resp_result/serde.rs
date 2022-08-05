@@ -1,6 +1,6 @@
 use serde::{ser::SerializeStruct, Serialize};
 
-use crate::{get_config, resp_error::RespError, resp_body::RespBody};
+use crate::{get_config, resp_body::RespBody, resp_error::RespError};
 
 use super::RespResult;
 

@@ -7,7 +7,7 @@ use std::str::FromStr;
 use http::{header::HeaderName, HeaderValue, StatusCode};
 
 use super::RespResult;
-use crate::{get_config, resp_error::RespError, resp_body::RespBody};
+use crate::{get_config, resp_body::RespBody, resp_error::RespError};
 
 #[cfg(feature = "mime")]
 #[allow(dead_code)]

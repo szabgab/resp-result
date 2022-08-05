@@ -16,7 +16,6 @@ where
             Some((k, v)) => builder.header(k, v),
         };
 
-
         builder
             .body(axum::body::boxed(axum::body::Full::from(body)))
             .expect("RespResult 构造响应时发生异常")
@@ -156,7 +155,7 @@ pub mod axum_respond_part {
                 "Mock Error".into()
             }
 
-            type ExtraCode= String;
+            type ExtraCode = String;
 
             fn extra_code(&self) -> Self::ExtraCode {
                 String::new()

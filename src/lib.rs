@@ -2,20 +2,19 @@
 mod config;
 mod convert;
 mod owner_leak;
-mod resp_error;
 mod resp_body;
+mod resp_error;
 mod resp_result;
 
-use once_cell::sync::OnceCell;
 #[cfg(feature = "for-axum")]
-pub use resp_result::to_response::axum::axum_respond_part;
+pub use self::resp_result::to_response::axum::axum_respond_part;
+use once_cell::sync::OnceCell;
 
 use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use resp_error::RespError;
 pub use resp_result::{Nil, RespResult};
-
 
 static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 

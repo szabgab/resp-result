@@ -16,5 +16,3 @@ pub trait RespError {
     #[cfg(feature = "extra-code")]
     fn extra_code(&self) -> Self::ExtraCode;
 }
-
-

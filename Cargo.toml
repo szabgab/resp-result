@@ -9,7 +9,7 @@ documentation = "https://docs.rs/resp-result"
 license = "MIT"
 
 [package.metadata.docs.rs]
-features = ["axum-full"]
+all_features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

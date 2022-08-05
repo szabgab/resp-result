@@ -91,7 +91,6 @@ mod test {
         }
     }
 
-
     // test wether ? can work on Result
     fn _testb() -> RespResult<u32, MockA> {
         let a = Result::<_, A>::Ok(11u32)?;
