@@ -7,7 +7,7 @@ use std::str::FromStr;
 use http::{header::HeaderName, HeaderValue, StatusCode};
 
 use super::RespResult;
-use crate::{get_config, resp_error::RespError, resp_extra::RespBody};
+use crate::{get_config, resp_error::RespError, resp_body::RespBody};
 
 #[cfg(feature = "mime")]
 #[allow(dead_code)]
@@ -51,7 +51,7 @@ where
             logger::debug!(
                 "RespResult 接管的 [异常] 响应 | {} => {}",
                 std::any::type_name::<E>(),
-                e.description()
+                e.log_message()
             );
             e.http_code()
         }

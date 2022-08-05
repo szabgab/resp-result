@@ -26,7 +26,7 @@ impl<T, E: RespError> Try for RespResult<T, E> {
             }
             RespResult::Err(e) => {
                 #[cfg(feature = "log")]
-                logger::error!("RespResult ControlFlow Break : `{}`", &e.description());
+                logger::error!("RespResult ControlFlow Break : `{}`", &e.log_message());
                 ControlFlow::Break(RespResult::Err(e))
             }
         }
@@ -79,7 +79,7 @@ mod test {
         B(B),
     }
     impl RespError for MockA {
-        fn description(&self) -> std::borrow::Cow<'static, str> {
+        fn log_message(&self) -> std::borrow::Cow<'static, str> {
             "MockA".into()
         }
 
@@ -90,8 +90,7 @@ mod test {
             String::new()
         }
     }
-    #[cfg(feature = "extra-resp")]
-    impl crate::resp_extra::RespExtra for MockA {}
+
 
     // test wether ? can work on Result
     fn _testb() -> RespResult<u32, MockA> {

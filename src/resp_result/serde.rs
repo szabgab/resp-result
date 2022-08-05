@@ -1,6 +1,6 @@
 use serde::{ser::SerializeStruct, Serialize};
 
-use crate::{get_config, resp_error::RespError, resp_extra::RespBody};
+use crate::{get_config, resp_error::RespError, resp_body::RespBody};
 
 use super::RespResult;
 
@@ -43,9 +43,10 @@ where
                 #[cfg(feature = "log")]
                 {
                     logger::debug!("序列化失败情况结果");
-                    logger::error!("错误信息 : {}", err.description())
+                    logger::error!("错误信息 : {}", err.log_message())
                 }
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
+
                 if let Some(n) = cfg.signed_base_status {
                     body.serialize_field(n, &false)?;
                 }
@@ -53,7 +54,7 @@ where
                 if let Some(ecl) = cfg.extra_code {
                     body.serialize_field(ecl, &err.extra_code())?;
                 }
-                body.serialize_field(cfg.err_msg_name, &err.description())?;
+                body.serialize_field(cfg.err_msg_name, &err.log_message())?;
 
                 if cfg.full_field {
                     body.serialize_field(cfg.body_name, &Option::<()>::None)?;

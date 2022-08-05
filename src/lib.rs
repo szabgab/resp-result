@@ -3,7 +3,7 @@ mod config;
 mod convert;
 mod owner_leak;
 mod resp_error;
-mod resp_extra;
+mod resp_body;
 mod resp_result;
 
 use once_cell::sync::OnceCell;
@@ -14,13 +14,8 @@ use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use resp_error::RespError;
-#[cfg(feature = "extra-resp")]
-pub use resp_extra::{AdHoc, ExtraWrap};
-pub use resp_extra::{ExtraRespExt, RespExtra};
 pub use resp_result::{Nil, RespResult};
 
-#[cfg(all(feature = "for-actix", feature = "for-axum"))]
-compile_error!("`for-actix` and `for-axum` can not use at the some time");
 
 static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 

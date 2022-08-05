@@ -1,13 +1,12 @@
 use std::borrow::Cow;
 
-pub trait RespError: crate::resp_extra::RespExtra {
-    fn description(&self) -> Cow<'static, str>;
-
-    #[cfg(feature = "log")]
-    fn do_logger(&self) {
-        logger::error!("Error Ocurred : {}", self.description())
+pub trait RespError {
+    /// message for logger
+    fn log_message(&self) -> Cow<'_, str>;
+    /// message for response
+    fn resp_message(&self) -> Cow<'_, str> {
+        self.log_message()
     }
-
     fn http_code(&self) -> http::StatusCode {
         http::StatusCode::INTERNAL_SERVER_ERROR
     }
@@ -18,5 +17,4 @@ pub trait RespError: crate::resp_extra::RespExtra {
     fn extra_code(&self) -> Self::ExtraCode;
 }
 
-#[cfg(not(feature = "extra-resp"))]
-impl<T> crate::RespExtra for T {}
+
