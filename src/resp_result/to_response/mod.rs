@@ -4,15 +4,11 @@ pub mod axum;
 #[allow(unused_imports)]
 use std::str::FromStr;
 
-use http::{
-    header::{HeaderName, CONTENT_TYPE},
-    HeaderMap, HeaderValue, StatusCode,
-};
+use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode};
 
 use super::{serde::SerializeWrap, RespResult};
 use crate::{extra_flag::effect::Effects, get_config, resp_body::RespBody, resp_error::RespError};
 
-#[cfg(feature = "mime")]
 #[allow(dead_code)]
 static JSON_TYPE: &mime::Mime = &mime::APPLICATION_JSON;
 
@@ -25,7 +21,6 @@ struct PrepareRespond {
 
 impl PrepareRespond {
     #[allow(dead_code)]
-    #[allow(clippy::map_identity)]
     #[inline]
     pub fn from_resp_result<T, E>(resp: &RespResult<T, E>) -> Self
     where
@@ -45,7 +40,11 @@ impl PrepareRespond {
 
         this.set_status(resp);
 
-        this.set_header(resp, cfg.extra_code.as_ref());
+        this.set_header(
+            resp,
+            #[cfg(feature = "extra-code")]
+            cfg.extra_code.as_ref(),
+        );
 
         #[cfg(feature = "log")]
         logger::info!(
@@ -57,6 +56,7 @@ impl PrepareRespond {
         this
     }
 
+    #[allow(clippy::map_identity)]
     fn serde_body<T, E>(&mut self, resp: &RespResult<T, E>)
     where
         T: RespBody,
@@ -73,8 +73,11 @@ impl PrepareRespond {
         }
     }
 
-    fn set_header<T, E>(&mut self, resp: &RespResult<T, E>, extra_header: Option<&HeaderName>)
-    where
+    fn set_header<T, E>(
+        &mut self,
+        resp: &RespResult<T, E>,
+        #[cfg(feature = "extra-code")] extra_header: Option<&http::header::HeaderName>,
+    ) where
         T: RespBody,
         E: RespError,
     {
@@ -156,9 +159,9 @@ mod test {
         fn log_message(&self) -> std::borrow::Cow<'_, str> {
             "Mock Error".into()
         }
-
+        #[cfg(feature = "extra-code")]
         type ExtraCode = String;
-
+        #[cfg(feature = "extra-code")]
         fn extra_code(&self) -> Self::ExtraCode {
             "Mock".into()
         }
