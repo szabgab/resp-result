@@ -7,7 +7,7 @@ use std::str::FromStr;
 use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode};
 
 use super::{serde::SerializeWrap, RespResult};
-use crate::{extra_flag::effect::Effects, get_config, resp_body::RespBody, resp_error::RespError};
+use crate::{extra_flag::effect::{Effects, BodyEffect}, get_config, resp_body::RespBody, resp_error::RespError};
 
 #[allow(dead_code)]
 static JSON_TYPE: &mime::Mime = &mime::APPLICATION_JSON;
@@ -62,7 +62,7 @@ impl PrepareRespond {
         T: RespBody,
         E: RespError,
     {
-        if resp.body_effect(&mut self.body) {
+        if let BodyEffect::Continue =  resp.body_effect(&mut self.body) {
             serde_json::to_writer(&mut self.body, &SerializeWrap(resp))
                 .map_err(|err| {
                     #[cfg(feature = "log")]

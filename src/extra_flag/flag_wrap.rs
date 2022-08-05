@@ -3,7 +3,7 @@ use crate::{
     ExtraFlags, RespResult,
 };
 
-use super::effect::{Effects, BodyEffect};
+use super::effect::{BodyEffect, Effects};
 
 pub struct FlagWarp<T> {
     inner: T,

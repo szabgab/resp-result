@@ -11,7 +11,6 @@ pub enum BodyEffect {
     Continue,
 }
 
-
 pub trait Effects {
     /// change the body
     /// return true allow following set json serde respond
