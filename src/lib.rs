@@ -14,9 +14,14 @@ use once_cell::sync::OnceCell;
 use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
-pub use extra_flag::flags::{ExtraFlag, ExtraFlags};
+pub use extra_flag::{
+    flag_wrap::FlagWarp,
+    flags::{ExtraFlag, ExtraFlags},
+};
 pub use resp_error::RespError;
 pub use resp_result::{Nil, RespResult};
+
+pub type FlagRespResult<T, E> = RespResult<FlagWarp<T>, E>;
 
 static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
@@ -34,9 +39,4 @@ pub(crate) fn get_config() -> &'static InnerConfig {
         logger::warn!("未配置RespResult 配置文件，将使用默认配置");
         Default::default()
     })
-}
-
-pub fn leak_string(s: String) -> &'static str {
-    let ls = Box::leak(s.into_boxed_str()) as &'static str;
-    ls
 }
