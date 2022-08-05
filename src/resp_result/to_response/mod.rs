@@ -169,13 +169,14 @@ mod test {
             ExtraFlag::EmptyBody
                 + ExtraFlag::status(StatusCode::NOT_MODIFIED)
                 + ExtraFlag::insert_header(http::header::ETAG, "1234567890")
-                + ExtraFlag::insert_header(http::header::CONTENT_TYPE, mime::TEXT_PLAIN.as_ref())
+                + ExtraFlag::remove_header(http::header::CONTENT_TYPE),
         );
 
         let p = PrepareRespond::from_resp_result(&a);
 
         assert_eq!(p.body.len(), 0);
         assert_eq!(p.status, StatusCode::NOT_MODIFIED);
+        assert_eq!(p.headers.len(), 1);
         println!("{p:#?}")
     }
 }

@@ -7,8 +7,9 @@ pub enum ExtraFlag {
     EmptyBody,
     SetStatus(StatusCode),
     SetHeader(HeaderName, HeaderValue, HeaderType),
+    RemoveHeader(HeaderName),
 }
-#[derive(Debug, Hash, PartialEq, Eq)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub enum HeaderType {
     Insert,
     Append,
@@ -48,6 +49,13 @@ impl ExtraFlag {
             value.try_into().expect("Bad Header Value"),
             HeaderType::Insert,
         )
+    }
+    pub fn remove_header<K>(key: K) -> Self
+    where
+        K: TryInto<HeaderName>,
+        K::Error: Debug,
+    {
+        Self::RemoveHeader(key.try_into().expect("Bad Header Name"))
     }
 }
 

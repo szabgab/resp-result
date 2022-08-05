@@ -47,7 +47,20 @@ impl Effects for ExtraFlags {
     fn headers_effect(&self, header_map: &mut HeaderMap) {
         self.flags
             .iter()
-            .flat_map(|flag| {
+            .filter_map(|flag| {
+                if let ExtraFlag::RemoveHeader(k) = flag {
+                    Some(k)
+                } else {
+                    None
+                }
+            })
+            .for_each(|k| {
+                header_map.remove(k);
+            });
+
+        self.flags
+            .iter()
+            .filter_map(|flag| {
                 if let ExtraFlag::SetHeader(k, v, ty) = flag {
                     Some((k, v.clone(), ty))
                 } else {
@@ -89,7 +102,7 @@ where
     fn headers_effect(&self, header_map: &mut HeaderMap) {
         match self {
             RespResult::Success(b) => b.headers_effect(header_map),
-            _=>()
+            _ => (),
         }
     }
 }
