@@ -1,48 +1,42 @@
 #![feature(try_trait_v2)]
 mod config;
 mod convert;
+mod extra_flag;
 mod owner_leak;
+mod resp_body;
 mod resp_error;
-mod resp_extra;
 mod resp_result;
 
 #[cfg(feature = "for-axum")]
-pub use resp_result::to_response::axum::axum_respond_part;
+pub use self::resp_result::to_response::axum::axum_respond_part;
+use once_cell::sync::OnceCell;
 
 use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
+pub use extra_flag::{
+    flag_wrap::FlagWarp,
+    flags::{ExtraFlag, ExtraFlags},
+};
 pub use resp_error::RespError;
-#[cfg(feature = "extra-resp")]
-pub use resp_extra::{AdHoc, ExtraWrap};
-pub use resp_extra::{ExtraRespExt, RespExtra};
 pub use resp_result::{Nil, RespResult};
 
-#[cfg(all(feature = "for-actix", feature = "for-axum"))]
-compile_error!("`for-actix` and `for-axum` can not use at the some time");
+pub type FlagRespResult<T, E> = RespResult<FlagWarp<T>, E>;
 
-static RESP_RESULT_CONFIG: state::Storage<InnerConfig> = state::Storage::new();
+static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
 pub fn set_config<C: ConfigTrait>(cfg: &C) {
     let inner = InnerConfig::from_cfg(cfg);
 
-    let rsp = RESP_RESULT_CONFIG.set(inner);
-    if !rsp {
+    if RESP_RESULT_CONFIG.set(inner).is_err() {
         panic!("Resp Result 配置已经被设置了")
     }
 }
 
 pub(crate) fn get_config() -> &'static InnerConfig {
-    if let Some(cfg) = RESP_RESULT_CONFIG.try_get() {
-        cfg
-    } else {
+    RESP_RESULT_CONFIG.get_or_init(|| {
         #[cfg(feature = "log")]
         logger::warn!("未配置RespResult 配置文件，将使用默认配置");
-        RESP_RESULT_CONFIG.get_or_set(Default::default)
-    }
-}
-
-pub fn leak_string(s: String) -> &'static str {
-    let ls = Box::leak(s.into_boxed_str()) as &'static str;
-    ls
+        Default::default()
+    })
 }

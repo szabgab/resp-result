@@ -1,15 +1,32 @@
-use serde::{ser::SerializeStruct, Serialize};
+use serde::{ser::SerializeStruct, Serialize, Serializer};
 
-use crate::{get_config, resp_error::RespError, resp_extra::RespBody};
+use crate::{get_config, resp_body::RespBody, resp_error::RespError};
 
 use super::RespResult;
 
-impl<T, E> Serialize for RespResult<T, E>
+pub trait RespSerialize {
+    fn resp_serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer;
+}
+
+pub struct SerializeWrap<'s, S>(pub(crate) &'s S);
+
+impl<'s, Rs: RespSerialize> Serialize for SerializeWrap<'s, Rs> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.0.resp_serialize(serializer)
+    }
+}
+
+impl<T, E> RespSerialize for RespResult<T, E>
 where
     T: RespBody,
     E: RespError,
 {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn resp_serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
@@ -43,9 +60,10 @@ where
                 #[cfg(feature = "log")]
                 {
                     logger::debug!("序列化失败情况结果");
-                    logger::error!("错误信息 : {}", err.description())
+                    logger::error!("错误信息 : {}", err.log_message())
                 }
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
+
                 if let Some(n) = cfg.signed_base_status {
                     body.serialize_field(n, &false)?;
                 }
@@ -53,7 +71,7 @@ where
                 if let Some(ecl) = cfg.extra_code {
                     body.serialize_field(ecl, &err.extra_code())?;
                 }
-                body.serialize_field(cfg.err_msg_name, &err.description())?;
+                body.serialize_field(cfg.err_msg_name, &err.log_message())?;
 
                 if cfg.full_field {
                     body.serialize_field(cfg.body_name, &Option::<()>::None)?;

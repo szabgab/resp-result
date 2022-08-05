@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use crate::resp_error::RespError;
 
-mod serde;
+pub mod serde;
 pub mod to_response;
 mod try_op;
 
@@ -17,7 +17,7 @@ impl<T: std::fmt::Debug, E: RespError> Debug for RespResult<T, E> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Success(arg0) => f.debug_tuple("Success").field(arg0).finish(),
-            Self::Err(arg0) => f.debug_tuple("Err").field(&arg0.description()).finish(),
+            Self::Err(arg0) => f.debug_tuple("Err").field(&arg0.log_message()).finish(),
         }
     }
 }
@@ -26,7 +26,7 @@ impl<T: std::fmt::Display, E: RespError> std::fmt::Display for RespResult<T, E> 
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             RespResult::Success(data) => write!(f, "RespResult Ok[{}]", data),
-            RespResult::Err(err) => write!(f, "RespResult Err[{}]", err.description()),
+            RespResult::Err(err) => write!(f, "RespResult Err[{}]", err.log_message()),
         }
     }
 }
@@ -118,7 +118,7 @@ impl<T, E> RespResult<T, E> {
         logger::error!(
             "RespResult 异常分支 {} => {}",
             std::any::type_name::<E>(),
-            err.description()
+            err.log_message()
         );
         Self::Err(err)
     }

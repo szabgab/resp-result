@@ -1,7 +1,7 @@
 #[cfg(feature = "for-actix")]
 impl<T, E> actix_web::Responder for crate::RespResult<T, E>
 where
-    T: crate::resp_extra::RespBody,
+    T: crate::resp_body::RespBody,
     E: crate::RespError,
 {
     type Body = actix_web::body::BoxBody;
@@ -32,23 +32,24 @@ where
 #[cfg(feature = "for-actix")]
 fn to_actix_resp<T, E>(this: &crate::RespResult<T, E>) -> actix_web::HttpResponse
 where
-    T: crate::resp_extra::RespBody,
+    T: crate::resp_body::RespBody,
     E: crate::RespError,
 {
-    let (body, status, extra_code) = super::prepare_respond(this);
-    let mut resp = actix_web::HttpResponse::build(status);
+    let respond = super::PrepareRespond::from_resp_result(this);
+    let mut resp = actix_web::HttpResponse::build(respond.status);
 
-    resp.content_type(super::JSON_TYPE.as_ref());
+    let mut last_head = None;
+    for (k, v) in respond.headers {
+        let key = if let Some(name) = k {
+            last_head.replace(name.clone());
+            name
+        } else if let Some(name) = last_head.clone() {
+            name
+        } else {
+            panic!("Unknown Header Key")
+        };
+        resp.append_header((key, v));
+    }
 
-    match extra_code {
-        Some(e_header) => {
-            resp.insert_header(e_header);
-        }
-        None => {}
-    }
-    match this {
-        crate::RespResult::Success(data) => data.actix_extra(&mut resp),
-        crate::RespResult::Err(err) => err.actix_extra(&mut resp),
-    }
-    resp.body(body)
+    resp.body(respond.body)
 }

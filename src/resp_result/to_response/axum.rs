@@ -1,27 +1,20 @@
 #[cfg(feature = "for-axum")]
 impl<T, E> axum::response::IntoResponse for crate::RespResult<T, E>
 where
-    T: crate::resp_extra::RespBody,
+    T: crate::resp_body::RespBody,
     E: crate::RespError,
 {
     #[inline]
     fn into_response(self) -> axum::response::Response {
-        let (body, status, eh) = super::prepare_respond(&self);
-        let builder = axum::response::Response::builder()
-            .status(status)
-            .header(http::header::CONTENT_TYPE, super::JSON_TYPE.as_ref());
-
-        let builder = match eh {
-            None => builder,
-            Some((k, v)) => builder.header(k, v),
-        };
-        let builder = match self {
-            crate::RespResult::Success(data) => data.axum_extra(builder),
-            crate::RespResult::Err(err) => err.axum_extra(builder),
-        };
+        let respond = super::PrepareRespond::from_resp_result(&self);
+        let mut builder = axum::response::Response::builder().status(respond.status);
 
         builder
-            .body(axum::body::boxed(axum::body::Full::from(body)))
+            .headers_mut()
+            .expect("RespResult 构造响应时发生异常")
+            .extend(respond.headers);
+        builder
+            .body(axum::body::boxed(axum::body::Full::from(respond.body)))
             .expect("RespResult 构造响应时发生异常")
     }
 }
@@ -31,7 +24,7 @@ pub mod axum_respond_part {
 
     use axum::response::{IntoResponse, IntoResponseParts, ResponseParts};
 
-    use crate::{resp_extra, Nil, RespError, RespResult};
+    use crate::{resp_body, Nil, RespError, RespResult};
 
     pub mod prefab_part_handle {
         use crate::Nil;
@@ -57,7 +50,7 @@ pub mod axum_respond_part {
         R: Into<RespResult<T, E>>,
         // part into respond and respond part
         P: FnOnce(T) -> (Resp, Part),
-        Resp: resp_extra::RespBody,
+        Resp: resp_body::RespBody,
         Part: IntoResponseParts,
         E: RespError,
     {
@@ -66,7 +59,7 @@ pub mod axum_respond_part {
                 let (resp, part) = part_handle(data);
                 (RespResult::Success(resp), Some(part))
             }
-            RespResult::Err(err) => ((RespResult::Err(err), None)),
+            RespResult::Err(err) => (RespResult::Err(err), None),
         };
         RespResultExtraPart {
             inner: resp_result,
@@ -84,7 +77,7 @@ pub mod axum_respond_part {
     #[derive(Debug)]
     pub struct RespResultExtraPart<T, E, Extra>
     where
-        T: resp_extra::RespBody,
+        T: resp_body::RespBody,
         E: RespError,
         Extra: IntoResponseParts,
     {
@@ -94,7 +87,7 @@ pub mod axum_respond_part {
 
     impl<T, E, Extra> IntoResponse for RespResultExtraPart<T, E, Extra>
     where
-        T: resp_extra::RespBody,
+        T: resp_body::RespBody,
         E: RespError,
         Extra: IntoResponseParts,
     {
@@ -106,7 +99,7 @@ pub mod axum_respond_part {
 
     impl<T, E, Extra> RespResultExtraPart<T, E, Extra>
     where
-        T: resp_extra::RespBody,
+        T: resp_body::RespBody,
         E: RespError,
         Extra: IntoResponseParts,
     {
@@ -155,8 +148,14 @@ pub mod axum_respond_part {
         }
 
         impl RespError for MockError {
-            fn description(&self) -> std::borrow::Cow<'static, str> {
+            fn log_message(&self) -> std::borrow::Cow<'_, str> {
                 "Mock Error".into()
+            }
+
+            type ExtraCode = String;
+
+            fn extra_code(&self) -> Self::ExtraCode {
+                String::new()
             }
         }
 
