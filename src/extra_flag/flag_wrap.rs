@@ -3,7 +3,7 @@ use crate::{
     ExtraFlags, RespResult,
 };
 
-use super::effect::Effects;
+use super::effect::{Effects, BodyEffect};
 
 pub struct FlagWarp<T> {
     inner: T,
@@ -43,7 +43,7 @@ impl<T: LoadSerde> LoadSerde for FlagWarp<T> {
 }
 
 impl<T> Effects for FlagWarp<T> {
-    fn body_effect(&self, body: &mut Vec<u8>) -> bool {
+    fn body_effect(&self, body: &mut Vec<u8>) -> BodyEffect {
         self.flags.body_effect(body)
     }
 

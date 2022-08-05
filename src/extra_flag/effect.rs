@@ -5,11 +5,18 @@ use crate::{resp_body::RespBody, ExtraFlag, ExtraFlags, RespError, RespResult};
 
 use super::flags::HeaderType;
 
+#[derive(Debug)]
+pub enum BodyEffect {
+    Empty,
+    Continue,
+}
+
+
 pub trait Effects {
     /// change the body
     /// return true allow following set json serde respond
-    fn body_effect(&self, _: &mut Vec<u8>) -> bool {
-        true
+    fn body_effect(&self, _: &mut Vec<u8>) -> BodyEffect {
+        BodyEffect::Continue
     }
     /// return `Some` for cover resp-result StatusCode
     /// or return `None`
@@ -21,12 +28,12 @@ pub trait Effects {
 }
 
 impl Effects for ExtraFlags {
-    fn body_effect(&self, body: &mut Vec<u8>) -> bool {
+    fn body_effect(&self, body: &mut Vec<u8>) -> BodyEffect {
         if self.flags.iter().any(|flag| flag == &ExtraFlag::EmptyBody) {
             body.clear();
-            false
+            BodyEffect::Empty
         } else {
-            true
+            BodyEffect::Continue
         }
     }
 
@@ -85,10 +92,10 @@ where
     T: RespBody,
     E: RespError,
 {
-    fn body_effect(&self, body: &mut Vec<u8>) -> bool {
+    fn body_effect(&self, body: &mut Vec<u8>) -> BodyEffect {
         match self {
             RespResult::Success(b) => b.body_effect(body),
-            RespResult::Err(_) => false,
+            RespResult::Err(_) => BodyEffect::Continue,
         }
     }
 
