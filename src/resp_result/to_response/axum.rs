@@ -9,7 +9,10 @@ where
         let respond = super::PrepareRespond::from_resp_result(&self);
         let mut builder = axum::response::Response::builder().status(respond.status);
 
-        builder.headers_mut().expect("RespResult 构造响应时发生异常").extend(respond.headers);
+        builder
+            .headers_mut()
+            .expect("RespResult 构造响应时发生异常")
+            .extend(respond.headers);
         builder
             .body(axum::body::boxed(axum::body::Full::from(respond.body)))
             .expect("RespResult 构造响应时发生异常")
@@ -56,7 +59,7 @@ pub mod axum_respond_part {
                 let (resp, part) = part_handle(data);
                 (RespResult::Success(resp), Some(part))
             }
-            RespResult::Err(err) => ((RespResult::Err(err), None)),
+            RespResult::Err(err) => (RespResult::Err(err), None),
         };
         RespResultExtraPart {
             inner: resp_result,

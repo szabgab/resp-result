@@ -100,9 +100,8 @@ where
     }
 
     fn headers_effect(&self, header_map: &mut HeaderMap) {
-        match self {
-            RespResult::Success(b) => b.headers_effect(header_map),
-            _ => (),
+        if let RespResult::Success(b) = self {
+            b.headers_effect(header_map)
         }
     }
 }
