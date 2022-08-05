@@ -71,7 +71,7 @@ where
                 if let Some(ecl) = cfg.extra_code {
                     body.serialize_field(ecl, &err.extra_code())?;
                 }
-                body.serialize_field(cfg.err_msg_name, &err.log_message())?;
+                body.serialize_field(cfg.err_msg_name, &err.resp_message())?;
 
                 if cfg.full_field {
                     body.serialize_field(cfg.body_name, &Option::<()>::None)?;
