@@ -1,15 +1,32 @@
-use serde::{ser::SerializeStruct, Serialize};
+use serde::{ser::SerializeStruct, Serialize, Serializer};
 
 use crate::{get_config, resp_body::RespBody, resp_error::RespError};
 
 use super::RespResult;
 
-impl<T, E> Serialize for RespResult<T, E>
+pub trait RespSerialize {
+    fn resp_serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer;
+}
+
+pub struct SerializeWrap<'s, S>(pub(crate) &'s S);
+
+impl<'s, Rs: RespSerialize> Serialize for SerializeWrap<'s, Rs> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.0.resp_serialize(serializer)
+    }
+}
+
+impl<T, E> RespSerialize for RespResult<T, E>
 where
     T: RespBody,
     E: RespError,
 {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn resp_serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {

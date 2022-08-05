@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use crate::resp_error::RespError;
 
-mod serde;
+pub mod serde;
 pub mod to_response;
 mod try_op;
 

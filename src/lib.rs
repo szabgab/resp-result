@@ -1,6 +1,7 @@
 #![feature(try_trait_v2)]
 mod config;
 mod convert;
+mod extra_flag;
 mod owner_leak;
 mod resp_body;
 mod resp_error;
@@ -13,6 +14,7 @@ use once_cell::sync::OnceCell;
 use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
+pub use extra_flag::flags::{ExtraFlag, ExtraFlags};
 pub use resp_error::RespError;
 pub use resp_result::{Nil, RespResult};
 

@@ -9,13 +9,14 @@ use http::{
     HeaderMap, HeaderValue, StatusCode,
 };
 
-use super::RespResult;
-use crate::{get_config, resp_body::RespBody, resp_error::RespError};
+use super::{serde::SerializeWrap, RespResult};
+use crate::{extra_flag::effect::Effects, get_config, resp_body::RespBody, resp_error::RespError};
 
 #[cfg(feature = "mime")]
 #[allow(dead_code)]
 static JSON_TYPE: &mime::Mime = &mime::APPLICATION_JSON;
 
+#[derive(Debug)]
 struct PrepareRespond {
     pub(crate) body: Vec<u8>,
     pub(crate) status: StatusCode,
@@ -61,15 +62,15 @@ impl PrepareRespond {
         T: RespBody,
         E: RespError,
     {
-        let body = serde_json::to_vec(resp)
-            .map_err(|err| {
-                #[cfg(feature = "log")]
-                logger::error!("RespResult 响应出现异常 : {}", err);
-                err
-            })
-            .expect("Json 响应时序列化异常");
-
-        let _ = std::mem::replace(&mut self.body, body);
+        if resp.body_effect(&mut self.body) {
+            serde_json::to_writer(&mut self.body, &SerializeWrap(resp))
+                .map_err(|err| {
+                    #[cfg(feature = "log")]
+                    logger::error!("RespResult 响应出现异常 : {}", err);
+                    err
+                })
+                .expect("Json 响应时序列化异常");
+        }
     }
 
     fn set_header<T, E>(&mut self, resp: &RespResult<T, E>, extra_header: Option<&HeaderName>)
@@ -92,6 +93,7 @@ impl PrepareRespond {
                 );
             }
         }
+        resp.headers_effect(&mut self.headers);
     }
 
     fn set_status<T, E>(&mut self, resp: &RespResult<T, E>)
@@ -116,8 +118,7 @@ impl PrepareRespond {
                 e.http_code()
             }
         };
-
-        self.status = status
+        self.status = resp.status_effect().unwrap_or(status)
     }
 }
 
@@ -139,5 +140,42 @@ impl From<std::convert::Infallible> for Nil {
 impl std::fmt::Display for Nil {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Nil")
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use http::StatusCode;
+
+    use crate::{ExtraFlag, RespError, RespResult};
+
+    use super::PrepareRespond;
+    struct MockErr;
+
+    impl RespError for MockErr {
+        fn log_message(&self) -> std::borrow::Cow<'_, str> {
+            "Mock Error".into()
+        }
+
+        type ExtraCode = String;
+
+        fn extra_code(&self) -> Self::ExtraCode {
+            "Mock".into()
+        }
+    }
+    #[test]
+    fn test_prepare_resp() {
+        let a = RespResult::<_, MockErr>::Success(12i32).with_flags(
+            ExtraFlag::EmptyBody
+                + ExtraFlag::status(StatusCode::NOT_MODIFIED)
+                + ExtraFlag::insert_header(http::header::ETAG, "1234567890")
+                + ExtraFlag::insert_header(http::header::CONTENT_TYPE, mime::TEXT_PLAIN.as_ref())
+        );
+
+        let p = PrepareRespond::from_resp_result(&a);
+
+        assert_eq!(p.body.len(), 0);
+        assert_eq!(p.status, StatusCode::NOT_MODIFIED);
+        println!("{p:#?}")
     }
 }
