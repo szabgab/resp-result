@@ -69,7 +69,7 @@ where
                 }
                 #[cfg(feature = "extra-code")]
                 if let Some(ecl) = cfg.extra_code {
-                    body.serialize_field(ecl, &err.extra_code())?;
+                    body.serialize_field(ecl, &err.extra_message())?;
                 }
                 body.serialize_field(cfg.err_msg_name, &err.resp_message())?;
 

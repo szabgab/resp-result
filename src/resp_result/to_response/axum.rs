@@ -152,9 +152,9 @@ pub mod axum_respond_part {
                 "Mock Error".into()
             }
 
-            type ExtraCode = String;
+            type ExtraMessage = String;
 
-            fn extra_code(&self) -> Self::ExtraCode {
+            fn extra_message(&self) -> Self::ExtraMessage {
                 String::new()
             }
         }

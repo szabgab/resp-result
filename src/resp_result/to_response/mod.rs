@@ -92,7 +92,7 @@ impl PrepareRespond {
             (RespResult::Err(err), Some(key)) => {
                 self.headers.append(
                     key,
-                    HeaderValue::from_str(&err.extra_code().to_string()).expect("Bad HeaderValue"),
+                    HeaderValue::from_str(&err.extra_message().to_string()).expect("Bad HeaderValue"),
                 );
             }
         }
@@ -160,9 +160,9 @@ mod test {
             "Mock Error".into()
         }
         #[cfg(feature = "extra-code")]
-        type ExtraCode = String;
+        type ExtraMessage = String;
         #[cfg(feature = "extra-code")]
-        fn extra_code(&self) -> Self::ExtraCode {
+        fn extra_message(&self) -> Self::ExtraMessage {
             "Mock".into()
         }
     }
