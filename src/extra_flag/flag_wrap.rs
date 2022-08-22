@@ -5,12 +5,19 @@ use crate::{
 
 use super::effect::{BodyEffect, Effects};
 
-pub struct FlagWarp<T> {
+/// an wrap for adding extra flags.
+/// the [`FlagWrap`] if and only if using like following
+/// ```rust ignore
+/// RespResult<FlagWrap<T>, E>
+/// ```
+pub struct FlagWrap<T> {
     inner: T,
     flags: ExtraFlags,
 }
 
-impl<T> FlagWarp<T> {
+impl<T> FlagWrap<T> {
+    /// crate a new [`FlagWrap`] with `data` and `flags`
+    #[inline]
     pub fn new(data: T, flags: impl Into<ExtraFlags>) -> Self {
         Self {
             inner: data,
@@ -20,21 +27,29 @@ impl<T> FlagWarp<T> {
 }
 
 impl<T, E> RespResult<T, E> {
-    pub fn with_flags(self, flags: impl Into<ExtraFlags>) -> RespResult<FlagWarp<T>, E> {
+    #[inline]
+    /// create a [`RespResult::Success`] with flags
+    pub fn flag_ok(data: T, flags: impl Into<ExtraFlags>) -> RespResult<FlagWrap<T>, E> {
+        RespResult::ok(FlagWrap::new(data, flags))
+    }
+
+    #[inline]
+    /// covert a [`RespResult::<T, E>`] into [`RespResult<FlagWrap<T>, E>`] with provide flags
+    pub fn with_flags(self, flags: impl Into<ExtraFlags>) -> RespResult<FlagWrap<T>, E> {
         match self {
-            RespResult::Success(data) => RespResult::Success(FlagWarp::new(data, flags)),
+            RespResult::Success(data) => RespResult::Success(FlagWrap::new(data, flags)),
             RespResult::Err(err) => RespResult::Err(err),
         }
     }
 }
 
-impl<T, E> From<RespResult<T, E>> for RespResult<FlagWarp<T>, E> {
+impl<T, E> From<RespResult<T, E>> for RespResult<FlagWrap<T>, E> {
     fn from(inner: RespResult<T, E>) -> Self {
         inner.with_flags(())
     }
 }
 
-impl<T: LoadSerde> LoadSerde for FlagWarp<T> {
+impl<T: LoadSerde> LoadSerde for FlagWrap<T> {
     type SerdeData = T::SerdeData;
 
     fn load_serde(&self) -> &Self::SerdeData {
@@ -42,21 +57,22 @@ impl<T: LoadSerde> LoadSerde for FlagWarp<T> {
     }
 }
 
-impl<T> Effects for FlagWarp<T> {
+impl<T> Effects for FlagWrap<T> {
+    #[inline]
     fn body_effect(&self, body: &mut Vec<u8>) -> BodyEffect {
         self.flags.body_effect(body)
     }
-
+    #[inline]
     fn status_effect(&self) -> Option<http::StatusCode> {
         self.flags.status_effect()
     }
-
+    #[inline]
     fn headers_effect(&self, map: &mut http::HeaderMap) {
         self.flags.headers_effect(map)
     }
 }
 
-impl<T: LoadSerde> RespBody for FlagWarp<T> {}
+impl<T: LoadSerde> RespBody for FlagWrap<T> {}
 
 #[cfg(test)]
 mod test {

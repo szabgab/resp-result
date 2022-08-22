@@ -15,13 +15,13 @@ use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use extra_flag::{
-    flag_wrap::FlagWarp,
+    flag_wrap::FlagWrap,
     flags::{ExtraFlag, ExtraFlags},
 };
 pub use resp_error::RespError;
 pub use resp_result::{Nil, RespResult};
 
-pub type FlagRespResult<T, E> = RespResult<FlagWarp<T>, E>;
+pub type FlagRespResult<T, E> = RespResult<FlagWrap<T>, E>;
 
 static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
