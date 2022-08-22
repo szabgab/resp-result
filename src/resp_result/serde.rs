@@ -41,8 +41,8 @@ where
                 #[cfg(feature = "log")]
                 logger::debug!("序列化成功模式结果");
                 let mut body = serializer.serialize_struct("RespResult", ok_size)?;
-                if let Some(n) = cfg.signed_base_status {
-                    body.serialize_field(n, &true)?;
+                if let Some(ref signed_status) = cfg.signed_status {
+                    body.serialize_field(signed_status.field, &signed_status.ok)?;
                 }
                 if cfg.full_field {
                     #[cfg(feature = "extra-code")]
@@ -64,8 +64,8 @@ where
                 }
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
 
-                if let Some(n) = cfg.signed_base_status {
-                    body.serialize_field(n, &false)?;
+                if let Some(ref status_sign) = cfg.signed_status {
+                    body.serialize_field(status_sign.field, &status_sign.err)?;
                 }
                 #[cfg(feature = "extra-code")]
                 if let Some(ecl) = cfg.extra_code {

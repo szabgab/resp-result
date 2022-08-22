@@ -5,8 +5,14 @@ use std::borrow::Cow;
 
 #[allow(unused_imports)]
 use crate::owner_leak::OwnerLeaker;
-/// 生成 Resp 时的配置
+/// the config of response
 pub trait RespConfig {
+    /// wether write the extra error message into header with the  provided name
+    /// - `Some(_)` enable
+    /// - `None` disable
+    ///
+    /// ## Default
+    /// default is enable with name `extra-code`
     #[cfg(feature = "extra-code")]
     fn head_extra_code(&self) -> Option<Cow<'static, str>> {
         Some("extra-code".into())

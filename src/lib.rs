@@ -25,6 +25,11 @@ pub type FlagRespResult<T, E> = RespResult<FlagWarp<T>, E>;
 
 static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
+/// set the [`RespResult`] config, will change the action on generate response body
+///
+/// ## Panic
+///
+/// the config can only been set once, multiple times set will cause panic
 pub fn set_config<C: ConfigTrait>(cfg: &C) {
     let inner = InnerConfig::from_cfg(cfg);
 
