@@ -1,5 +1,5 @@
 use std::{
-    convert::{self, Infallible},
+    convert::Infallible,
     ops::{ControlFlow, FromResidual, Try},
 };
 
