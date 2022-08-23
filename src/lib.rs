@@ -1,4 +1,6 @@
 #![feature(try_trait_v2)]
+#![doc = include_str!("../Readme.md")]
+
 mod config;
 mod convert;
 mod extra_flag;
@@ -15,16 +17,21 @@ use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use extra_flag::{
-    flag_wrap::FlagWarp,
-    flags::{ExtraFlag, ExtraFlags},
+    flag_wrap::FlagWrap,
+    flags::{ExtraFlag, ExtraFlags, HeaderType},
 };
 pub use resp_error::RespError;
 pub use resp_result::{Nil, RespResult};
 
-pub type FlagRespResult<T, E> = RespResult<FlagWarp<T>, E>;
+pub type FlagRespResult<T, E> = RespResult<FlagWrap<T>, E>;
 
 static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
+/// set the [`RespResult`] config, will change the action on generate response body
+///
+/// ## Panic
+///
+/// the config can only been set once, multiple times set will cause panic
 pub fn set_config<C: ConfigTrait>(cfg: &C) {
     let inner = InnerConfig::from_cfg(cfg);
 

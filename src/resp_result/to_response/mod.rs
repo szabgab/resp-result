@@ -7,7 +7,12 @@ use std::str::FromStr;
 use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode};
 
 use super::{serde::SerializeWrap, RespResult};
-use crate::{extra_flag::effect::{Effects, BodyEffect}, get_config, resp_body::RespBody, resp_error::RespError};
+use crate::{
+    extra_flag::effect::{BodyEffect, Effects},
+    get_config,
+    resp_body::RespBody,
+    resp_error::RespError,
+};
 
 #[allow(dead_code)]
 static JSON_TYPE: &mime::Mime = &mime::APPLICATION_JSON;
@@ -42,7 +47,7 @@ impl PrepareRespond {
 
         this.set_header(
             resp,
-            #[cfg(feature = "extra-code")]
+            #[cfg(feature = "extra-error")]
             cfg.extra_code.as_ref(),
         );
 
@@ -62,7 +67,7 @@ impl PrepareRespond {
         T: RespBody,
         E: RespError,
     {
-        if let BodyEffect::Continue =  resp.body_effect(&mut self.body) {
+        if let BodyEffect::Continue = resp.body_effect(&mut self.body) {
             serde_json::to_writer(&mut self.body, &SerializeWrap(resp))
                 .map_err(|err| {
                     #[cfg(feature = "log")]
@@ -76,7 +81,7 @@ impl PrepareRespond {
     fn set_header<T, E>(
         &mut self,
         resp: &RespResult<T, E>,
-        #[cfg(feature = "extra-code")] extra_header: Option<&http::header::HeaderName>,
+        #[cfg(feature = "extra-error")] extra_header: Option<&http::header::HeaderName>,
     ) where
         T: RespBody,
         E: RespError,
@@ -86,13 +91,14 @@ impl PrepareRespond {
             HeaderValue::try_from(JSON_TYPE.as_ref()).expect("Bad HeaderValue"),
         );
         // extra header
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         match (resp, extra_header) {
             (RespResult::Success(_), _) | (_, None) => (),
             (RespResult::Err(err), Some(key)) => {
                 self.headers.append(
                     key,
-                    HeaderValue::from_str(&err.extra_code().to_string()).expect("Bad HeaderValue"),
+                    HeaderValue::from_str(&err.extra_message().to_string())
+                        .expect("Bad HeaderValue"),
                 );
             }
         }
@@ -159,10 +165,10 @@ mod test {
         fn log_message(&self) -> std::borrow::Cow<'_, str> {
             "Mock Error".into()
         }
-        #[cfg(feature = "extra-code")]
-        type ExtraCode = String;
-        #[cfg(feature = "extra-code")]
-        fn extra_code(&self) -> Self::ExtraCode {
+        #[cfg(feature = "extra-error")]
+        type ExtraMessage = String;
+        #[cfg(feature = "extra-error")]
+        fn extra_message(&self) -> Self::ExtraMessage {
             "Mock".into()
         }
     }

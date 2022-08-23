@@ -11,22 +11,28 @@ pub enum BodyEffect {
     Continue,
 }
 
+/// the effect of a set of flag
 pub trait Effects {
+    #[inline]
     /// change the body
-    /// return true allow following set json serde respond
+    /// - return [`BodyEffect::Continue`] if need continue serialize the body
+    /// - return [`BodyEffect::Empty`] if need empty response body
     fn body_effect(&self, _: &mut Vec<u8>) -> BodyEffect {
         BodyEffect::Continue
     }
-    /// return `Some` for cover resp-result StatusCode
+    #[inline]
+    /// return `Some` for overwrite resp-result StatusCode
     /// or return `None`
     fn status_effect(&self) -> Option<StatusCode> {
         None
     }
+    #[inline]
     /// adding header map
     fn headers_effect(&self, _: &mut HeaderMap) {}
 }
 
 impl Effects for ExtraFlags {
+    #[inline]
     fn body_effect(&self, body: &mut Vec<u8>) -> BodyEffect {
         if self.flags.iter().any(|flag| flag == &ExtraFlag::EmptyBody) {
             body.clear();
@@ -35,7 +41,7 @@ impl Effects for ExtraFlags {
             BodyEffect::Continue
         }
     }
-
+    #[inline]
     fn status_effect(&self) -> Option<StatusCode> {
         self.flags
             .iter()
@@ -49,7 +55,7 @@ impl Effects for ExtraFlags {
             .reduce(|_, r| r)
             .copied()
     }
-
+    #[inline]
     fn headers_effect(&self, header_map: &mut HeaderMap) {
         self.flags
             .iter()
@@ -91,20 +97,21 @@ where
     T: RespBody,
     E: RespError,
 {
+    #[inline]
     fn body_effect(&self, body: &mut Vec<u8>) -> BodyEffect {
         match self {
             RespResult::Success(b) => b.body_effect(body),
             RespResult::Err(_) => BodyEffect::Continue,
         }
     }
-
+    #[inline]
     fn status_effect(&self) -> Option<StatusCode> {
         match self {
             RespResult::Success(b) => b.status_effect(),
             RespResult::Err(_) => None,
         }
     }
-
+    #[inline]
     fn headers_effect(&self, header_map: &mut HeaderMap) {
         if let RespResult::Success(b) = self {
             b.headers_effect(header_map)

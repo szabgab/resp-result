@@ -1,11 +1,16 @@
 mod resp;
+mod status_signed;
 
 pub use self::resp::RespConfig;
 pub use self::serde::SerdeConfig;
+pub use self::status_signed::StatusSign;
 use self::{resp::InnerRespConfig, serde::InnerSerdeConfig};
 
 mod serde;
 
+/// the config trait that giving for [`set_config`](crate::set_config)
+///
+/// this trait is the sub trait of [`SerdeConfig`] and [`RespConfig`]
 pub trait ConfigTrait: Sync + 'static
 where
     Self: SerdeConfig,
@@ -33,6 +38,7 @@ impl InnerConfig {
     }
 }
 
+/// config that apply all default config
 pub struct DefaultConfig;
 
 impl SerdeConfig for DefaultConfig {}

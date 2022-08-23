@@ -8,8 +8,20 @@ mod try_op;
 
 pub use to_response::Nil;
 
+/// resp result for more flexible control the response body
+///
+/// - [`Result`] will become `500` using as web framework response type when `Err(_)`, the action usually not I expect
+/// - using non-Result type as web framework response type cannot using `?`, the code will fill with `if let` or `match`
+///
+/// that why I need a [`RespResult`] which can
+/// - control respond code or other message when it become [`RespResult::Err`], not always `500`
+/// - impl the [`Try`](std::ops::Try) thus can using friendly `?` to simplify code
+///
+/// > note: because the [`Try`](std::ops::Try) not stable yet, this crate need `Nightly` rust
 pub enum RespResult<T, E> {
+    /// the respond is success with response body `T`
     Success(T),
+    /// the respond is failure with response error `E`
     Err(E),
 }
 
@@ -33,6 +45,9 @@ impl<T: std::fmt::Display, E: RespError> std::fmt::Display for RespResult<T, E> 
 
 impl<T, E> RespResult<T, E> {
     #[inline]
+    /// map currently `T` into `N`,
+    ///
+    /// this method is similar to the same name method of [`Result`]
     pub fn map<N, F>(self, f: F) -> RespResult<N, E>
     where
         F: FnOnce(T) -> N,
@@ -50,6 +65,9 @@ impl<T, E> RespResult<T, E> {
     }
 
     #[inline]
+    /// map currently `E` into `N`,
+    ///
+    /// this method is similar to the same name method of [`Result`]
     pub fn map_err<N, F>(self, f: F) -> RespResult<T, N>
     where
         F: FnOnce(E) -> N,
@@ -67,6 +85,7 @@ impl<T, E> RespResult<T, E> {
     }
 
     #[inline]
+    /// this method is similar to the same name method of [`Result`]
     pub fn and_then<N, F>(self, f: F) -> RespResult<N, E>
     where
         F: FnOnce(T) -> RespResult<N, E>,
@@ -78,6 +97,7 @@ impl<T, E> RespResult<T, E> {
     }
 
     #[inline]
+    /// this method is similar to the same name method of [`Result`]
     pub fn or_else<N, F>(self, f: F) -> RespResult<T, N>
     where
         F: FnOnce(E) -> RespResult<T, N>,
@@ -104,12 +124,14 @@ where
 
 impl<T, E> RespResult<T, E> {
     #[inline]
+    /// create an success [`RespResult`]
     pub fn ok(data: T) -> Self {
         #[cfg(feature = "log")]
         logger::info!("RespResult 成功分支",);
         Self::Success(data)
     }
     #[inline]
+    /// create an error [`RespResult`]
     pub fn err(err: E) -> Self
     where
         E: RespError,

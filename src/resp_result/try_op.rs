@@ -100,10 +100,10 @@ mod test {
             "MockA".into()
         }
 
-        #[cfg(feature = "extra-code")]
-        type ExtraCode = String;
-        #[cfg(feature = "extra-code")]
-        fn extra_code(&self) -> Self::ExtraCode {
+        #[cfg(feature = "extra-error")]
+        type ExtraMessage = String;
+        #[cfg(feature = "extra-error")]
+        fn extra_message(&self) -> Self::ExtraMessage {
             String::new()
         }
     }
