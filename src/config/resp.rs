@@ -12,15 +12,15 @@ pub trait RespConfig {
     /// - `None` disable
     ///
     /// ## Default
-    /// default is enable with name `extra-code`
-    #[cfg(feature = "extra-code")]
+    /// default is enable with name `extra-error`
+    #[cfg(feature = "extra-error")]
     fn head_extra_code(&self) -> Option<Cow<'static, str>> {
-        Some("extra-code".into())
+        Some("extra-error".into())
     }
 }
 
 pub(crate) struct InnerRespConfig {
-    #[cfg(feature = "extra-code")]
+    #[cfg(feature = "extra-error")]
     pub(crate) extra_code: Option<HeaderName>,
 }
 
@@ -28,7 +28,7 @@ impl InnerRespConfig {
     #[allow(unused_variables)]
     pub fn into_inner<C: RespConfig>(cfg: &C) -> Self {
         Self {
-            #[cfg(feature = "extra-code")]
+            #[cfg(feature = "extra-error")]
             extra_code: cfg.head_extra_code().leak().map(HeaderName::from_static),
         }
     }

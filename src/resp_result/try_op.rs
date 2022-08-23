@@ -83,9 +83,9 @@ mod test {
             "MockA".into()
         }
 
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         type ExtraMessage = String;
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         fn extra_message(&self) -> Self::ExtraMessage {
             String::new()
         }

@@ -10,15 +10,15 @@ license = "MIT"
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+rustdoc-args = ["--cfg", "docsrs", "doc_cfg"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = []
-axum-full = ["log", "extra-code", "for-axum"]
-actix-full = ["log", "extra-code", "for-actix"]
+default = ["axum-full"]
+axum-full = ["log", "extra-error", "for-axum"]
+actix-full = ["log", "extra-error", "for-actix"]
 log = ["logger"]
-extra-code = []
+extra-error = []
 for-axum = ["axum"]
 for-actix = ["actix-web"]
 

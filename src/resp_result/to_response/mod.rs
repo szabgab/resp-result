@@ -42,7 +42,7 @@ impl PrepareRespond {
 
         this.set_header(
             resp,
-            #[cfg(feature = "extra-code")]
+            #[cfg(feature = "extra-error")]
             cfg.extra_code.as_ref(),
         );
 
@@ -76,7 +76,7 @@ impl PrepareRespond {
     fn set_header<T, E>(
         &mut self,
         resp: &RespResult<T, E>,
-        #[cfg(feature = "extra-code")] extra_header: Option<&http::header::HeaderName>,
+        #[cfg(feature = "extra-error")] extra_header: Option<&http::header::HeaderName>,
     ) where
         T: RespBody,
         E: RespError,
@@ -86,7 +86,7 @@ impl PrepareRespond {
             HeaderValue::try_from(JSON_TYPE.as_ref()).expect("Bad HeaderValue"),
         );
         // extra header
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         match (resp, extra_header) {
             (RespResult::Success(_), _) | (_, None) => (),
             (RespResult::Err(err), Some(key)) => {
@@ -159,9 +159,9 @@ mod test {
         fn log_message(&self) -> std::borrow::Cow<'_, str> {
             "Mock Error".into()
         }
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         type ExtraMessage = String;
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         fn extra_message(&self) -> Self::ExtraMessage {
             "Mock".into()
         }

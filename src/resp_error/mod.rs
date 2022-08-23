@@ -20,10 +20,10 @@ pub trait RespError {
         http::StatusCode::INTERNAL_SERVER_ERROR
     }
 
-    #[cfg(feature = "extra-code")]
+    #[cfg(feature = "extra-error")]
     /// the associate type of extra message
     type ExtraMessage: serde::Serialize + 'static + Sized + std::fmt::Display;
-    #[cfg(feature = "extra-code")]
+    #[cfg(feature = "extra-error")]
     /// get the extra message
     fn extra_message(&self) -> Self::ExtraMessage;
 }

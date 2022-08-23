@@ -11,7 +11,7 @@ static SIGNED_STATUS: StatusSign = StatusSign {
     field_name: Cow::Borrowed("is-ok"),
     ty: SignType::Bool,
 };
-#[cfg(feature = "extra-code")]
+#[cfg(feature = "extra-error")]
 static EXTRA_ERR_CODE: &str = "extra-msg";
 static ERROR_MESSAGE: &str = "error-message";
 static BODY: &str = "body";
@@ -61,11 +61,11 @@ pub trait SerdeConfig {
     /// extra error message
     /// - Some(_) **enable** extra error message
     ///- None **disable** extra error message
-    /// extra-code
+    /// extra-error
     ///
     /// ## Default
     /// default enable with field name `extra-msg`
-    #[cfg(feature = "extra-code")]
+    #[cfg(feature = "extra-error")]
     fn extra_message(&self) -> Option<Cow<'static, str>> {
         Some(EXTRA_ERR_CODE.into())
     }
@@ -78,7 +78,7 @@ pub(crate) struct InnerSerdeConfig {
     pub(crate) err_msg_name: &'static str,
     pub(crate) full_field: bool,
     pub(crate) signed_status: Option<InnerStatusSign>,
-    #[cfg(feature = "extra-code")]
+    #[cfg(feature = "extra-error")]
     pub(crate) extra_code: Option<&'static str>,
     pub(crate) field_size: FieldSize,
 }
@@ -90,7 +90,7 @@ impl InnerSerdeConfig {
             err_msg_name: cfg.err_msg_name().leak(),
             full_field: cfg.fixed_field(),
             signed_status: cfg.signed_status().map(Into::into),
-            #[cfg(feature = "extra-code")]
+            #[cfg(feature = "extra-error")]
             extra_code: cfg.extra_message().leak(),
             field_size: Default::default(),
         };
@@ -122,7 +122,7 @@ impl FieldSize {
             err_size += 1;
         }
         //额外的异常码
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         if cfg.extra_code.is_some() {
             if cfg.full_field {
                 ok_size += 1;

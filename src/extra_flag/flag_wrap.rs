@@ -86,10 +86,10 @@ mod test {
         fn log_message(&self) -> std::borrow::Cow<'_, str> {
             "Mock Error".into()
         }
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         type ExtraMessage = String;
 
-        #[cfg(feature = "extra-code")]
+        #[cfg(feature = "extra-error")]
         fn extra_message(&self) -> Self::ExtraMessage {
             "Mock".into()
         }

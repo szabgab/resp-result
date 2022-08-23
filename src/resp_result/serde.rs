@@ -45,7 +45,7 @@ where
                     body.serialize_field(signed_status.field, &signed_status.ok)?;
                 }
                 if cfg.full_field {
-                    #[cfg(feature = "extra-code")]
+                    #[cfg(feature = "extra-error")]
                     if let Some(ecl) = cfg.extra_code {
                         body.serialize_field(ecl, &Option::<()>::None)?;
                     }
@@ -67,7 +67,7 @@ where
                 if let Some(ref status_sign) = cfg.signed_status {
                     body.serialize_field(status_sign.field, &status_sign.err)?;
                 }
-                #[cfg(feature = "extra-code")]
+                #[cfg(feature = "extra-error")]
                 if let Some(ecl) = cfg.extra_code {
                     body.serialize_field(ecl, &err.extra_message())?;
                 }
