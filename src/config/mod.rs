@@ -38,6 +38,7 @@ impl InnerConfig {
     }
 }
 
+/// config that apply all default config
 pub struct DefaultConfig;
 
 impl SerdeConfig for DefaultConfig {}
