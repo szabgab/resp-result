@@ -14,7 +14,7 @@ pub use self::resp_result::to_response::axum::axum_respond_part;
 use once_cell::sync::OnceCell;
 
 use config::InnerConfig;
-pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
+pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig, SignType, StatusSign};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use extra_flag::{
     flag_wrap::FlagWrap,
