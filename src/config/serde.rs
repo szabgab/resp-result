@@ -12,12 +12,10 @@ static SIGNED_STATUS: StatusSign = StatusSign {
     ty: SignType::Bool,
 };
 #[cfg(feature = "extra-error")]
-static EXTRA_ERR_CODE: &str = "extra-msg";
+static EXTRA_ERR_MESSAGE: &str = "extra-error-message";
 static ERROR_MESSAGE: &str = "error-message";
 static BODY: &str = "body";
 
-/// 序列化时的配置信息
-///
 /// the config information of serialize
 pub trait SerdeConfig {
     /// the name of body field, the field will be available when the [`RespResult`](crate::RespResult)
@@ -67,10 +65,8 @@ pub trait SerdeConfig {
     /// default enable with field name `extra-msg`
     #[cfg(feature = "extra-error")]
     fn extra_message(&self) -> Option<Cow<'static, str>> {
-        Some(EXTRA_ERR_CODE.into())
+        Some(EXTRA_ERR_MESSAGE.into())
     }
-    
-   
 }
 
 pub(crate) struct InnerSerdeConfig {

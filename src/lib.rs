@@ -1,4 +1,6 @@
 #![feature(try_trait_v2)]
+#![doc = include_str!("../Readme.md")]
+
 mod config;
 mod convert;
 mod extra_flag;
@@ -16,7 +18,7 @@ pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig};
 pub use convert::{IntoRespResult, IntoRespResultWithErr};
 pub use extra_flag::{
     flag_wrap::FlagWrap,
-    flags::{ExtraFlag, ExtraFlags},
+    flags::{ExtraFlag, ExtraFlags, HeaderType},
 };
 pub use resp_error::RespError;
 pub use resp_result::{Nil, RespResult};

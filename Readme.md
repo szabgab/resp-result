@@ -192,3 +192,29 @@ pub async fn welcome_short_name(
         }
     }
 ```
+
+### Effect `RespResult` behavior
+
+by default the `RespResult` will serialize the response body like that
+
+```json
+{
+  "is-ok": true,
+  "error-message": "...",
+  "extra-msg": "...",
+  "body": null
+}
+```
+
+the default behavior can be changed by using `set_config` to set global configuration
+
+for example, by config, we can change response body into following
+
+```json
+{
+  "status": "fail",
+  "reterror": 10001,
+  "message": "something wrong",
+  "body": null
+}
+```
