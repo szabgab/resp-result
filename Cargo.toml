@@ -1,6 +1,6 @@
 [package]
 name = "resp-result"
-version = "0.3.2"
+version = "0.4.0"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum or Actix Response"
@@ -10,7 +10,7 @@ license = "MIT"
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = ["--cfg", "docsrs", "doc_cfg"]
+rustdoc-args = ["--cfg", "docsrs", "--cfg", "doc_cfg"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
