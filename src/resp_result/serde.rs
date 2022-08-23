@@ -47,9 +47,9 @@ where
                 if cfg.full_field {
                     #[cfg(feature = "extra-error")]
                     if let Some(ecl) = cfg.extra_code {
-                        body.serialize_field(ecl, &Option::<()>::None)?;
+                        body.serialize_field(ecl, &E::extra_message_default())?;
                     }
-                    body.serialize_field(cfg.err_msg_name, &Option::<()>::None)?;
+                    body.serialize_field(cfg.err_msg_name, &E::extra_message_default())?;
                 }
 
                 body.serialize_field(cfg.body_name, data.load_serde())?;

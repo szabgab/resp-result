@@ -8,6 +8,7 @@ pub trait RespError {
     ///
     /// ## Default
     /// the [`RespError::resp_message`] default is equal to [`RespError::log_message`]
+    #[inline]
     fn resp_message(&self) -> Cow<'_, str> {
         self.log_message()
     }
@@ -16,6 +17,7 @@ pub trait RespError {
     ///
     /// ## Default
     /// the default http code is `500 Internal Server Error`
+    #[inline]
     fn http_code(&self) -> http::StatusCode {
         http::StatusCode::INTERNAL_SERVER_ERROR
     }
@@ -26,4 +28,23 @@ pub trait RespError {
     #[cfg(feature = "extra-error")]
     /// get the extra message
     fn extra_message(&self) -> Self::ExtraMessage;
+
+    /// when `fix-field = true` using this value serialize error message
+    ///
+    /// ## Default
+    /// default is [`None`](Option::None), it will serialize to `null`
+    #[inline]
+    fn resp_message_default() -> Option<Cow<'static, str>> {
+        None
+    }
+
+    /// when `fix-field = true` using this value serialize extra error message
+    ///
+    /// ## Default
+    /// default is [`None`], it will be serialize to `null`
+    #[cfg(feature = "extra-error")]
+    #[inline]
+    fn extra_message_default() -> Option<Self::ExtraMessage> {
+        None
+    }
 }
