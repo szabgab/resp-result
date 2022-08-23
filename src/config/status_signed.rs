@@ -115,7 +115,7 @@ impl Serialize for StatusEnum {
             StatusEnum::Bool => serializer.serialize_bool(true),
             StatusEnum::BoolRev => serializer.serialize_bool(false),
             StatusEnum::Number(num) => serializer.serialize_u8(*num),
-            StatusEnum::Str(s) => serializer.serialize_str(&s),
+            StatusEnum::Str(s) => serializer.serialize_str(s),
         }
     }
 }
