@@ -10,14 +10,14 @@ use super::RespResult;
 impl<T, E: RespError> Try for RespResult<T, E> {
     type Output = T;
 
-    type Residual = RespResult<convert::Infallible, E>;
+    type Residual = RespResult<Infallible, E>;
 
     #[inline]
     fn from_output(output: Self::Output) -> Self {
         Self::Success(output)
     }
     #[inline]
-    fn branch(self) -> std::ops::ControlFlow<Self::Residual, Self::Output> {
+    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
         match self {
             RespResult::Success(data) => {
                 #[cfg(feature = "log")]
@@ -46,11 +46,28 @@ where
     }
 }
 
-impl<T, E, F: From<E>> FromResidual<Result<Infallible, E>> for RespResult<T, F> {
+impl<T, E, F> FromResidual<Result<Infallible, E>> for RespResult<T, F>
+where
+    F: From<E>,
+{
+    #[inline]
     fn from_residual(residual: Result<Infallible, E>) -> Self {
         match residual {
             Err(e) => Self::Err(F::from(e)),
             Ok(_) => unreachable!(),
+        }
+    }
+}
+
+impl<T, E, F> FromResidual<RespResult<Infallible, E>> for Result<T, F>
+where
+    F: From<E>,
+{
+    #[inline]
+    fn from_residual(residual: RespResult<Infallible, E>) -> Self {
+        match residual {
+            RespResult::Err(err) => Result::Err(F::from(err)),
+            RespResult::Success(_) => unreachable!(),
         }
     }
 }
