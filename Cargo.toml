@@ -12,6 +12,14 @@ license = "MIT"
 all-features = true
 rustdoc-args = ["--cfg", "docsrs", "--cfg", "doc_cfg"]
 
+[[example]]
+name = "axum"
+required-features = ["axum-full"]
+
+[[example]]
+name = "actix"
+required-features = ["actix-full"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
 default = ["axum-full"]
