@@ -3,7 +3,7 @@ mod status_signed;
 
 pub use self::resp::RespConfig;
 pub use self::serde::SerdeConfig;
-pub use self::status_signed::StatusSign;
+pub use self::status_signed::{SignType, StatusSign};
 use self::{resp::InnerRespConfig, serde::InnerSerdeConfig};
 
 mod serde;
