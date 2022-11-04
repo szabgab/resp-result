@@ -27,6 +27,13 @@ pub type FlagRespResult<T, E> = RespResult<FlagWrap<T>, E>;
 
 static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
+pub fn try_set_config<C: ConfigTrait>(cfg: &C) -> Result<(), SetRespResultConfigureError> {
+    let inner = InnerConfig::from_cfg(cfg);
+    RESP_RESULT_CONFIG
+        .set(inner)
+        .map_err(|_| SetRespResultConfigureError)
+}
+
 /// set the [`RespResult`] config, will change the action on generate response body
 ///
 /// ## Panic
@@ -47,3 +54,6 @@ pub(crate) fn get_config() -> &'static InnerConfig {
         Default::default()
     })
 }
+#[derive(Debug, thiserror::Error)]
+#[error("RespResult Configure has set")]
+pub struct SetRespResultConfigureError;

@@ -37,7 +37,7 @@ impl<T: std::fmt::Debug, E: RespError> Debug for RespResult<T, E> {
 impl<T: std::fmt::Display, E: RespError> std::fmt::Display for RespResult<T, E> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RespResult::Success(data) => write!(f, "RespResult Ok[{}]", data),
+            RespResult::Success(data) => write!(f, "RespResult Ok[{data}]"),
             RespResult::Err(err) => write!(f, "RespResult Err[{}]", err.log_message()),
         }
     }
