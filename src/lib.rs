@@ -1,4 +1,4 @@
-#![feature(try_trait_v2)]
+#![cfg_attr(feature = "nightly_try_v2", feature(try_trait_v2))]
 #![doc = include_str!("../Readme.md")]
 
 mod config;
@@ -15,7 +15,7 @@ use once_cell::sync::OnceCell;
 
 use config::InnerConfig;
 pub use config::{ConfigTrait, DefaultConfig, RespConfig, SerdeConfig, SignType, StatusSign};
-pub use convert::{IntoRespResult, IntoRespResultWithErr};
+pub use convert::{resp_try, IntoRespResult, IntoRespResultWithErr};
 pub use extra_flag::{
     flag_wrap::FlagWrap,
     flags::{ExtraFlag, ExtraFlags, HeaderType},

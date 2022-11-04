@@ -1,17 +1,19 @@
-use axum::body::Body;
-use axum::routing::any;
-use axum::routing::get;
-use axum::Router;
-use axum::Server;
+use axum::{
+    body::Body,
+    routing::{any, get},
+    Router, Server,
+};
 use config::AxumConfig;
 use echo::echo_number;
 use error::PlainError;
 use http::Request;
-use resp_result::set_config;
-use resp_result::RespResult;
+
+use resp_result::{set_config, RespResult};
 use want_304::want_304;
 
 use std::net::SocketAddr;
+
+use crate::rtry_router::{parse_to_i32, parse_to_i64};
 
 #[tokio::main]
 async fn main() {
@@ -24,6 +26,12 @@ async fn main() {
     let router = Router::new()
         .route("/echo/:num", get(echo_number))
         .route("/want_304", get(want_304))
+        .nest(
+            "/parse",
+            Router::new()
+                .route("/i32/:v", get(parse_to_i32))
+                .route("/i64/:v/:v2", get(parse_to_i64)),
+        )
         .fallback(any(fallback));
 
     Server::bind(&addr)
@@ -33,22 +41,29 @@ async fn main() {
 }
 
 mod error {
-    use std::borrow::Cow;
+    use std::{borrow::Cow, num::ParseIntError};
 
     use http::StatusCode;
     use resp_result::RespError;
 
     pub(super) struct PlainError {
         pub(super) msg: String,
+        pub(super) code: u32,
+    }
+
+    impl From<ParseIntError> for PlainError {
+        fn from(value: ParseIntError) -> Self {
+            Self::new(value.to_string(), 1002)
+        }
+    }
+
+    impl PlainError {
+        pub(super) fn new(msg: String, code: u32) -> Self {
+            Self { msg, code }
+        }
     }
 
     impl RespError for PlainError {
-        fn extra_message(&self) -> Self::ExtraMessage {
-            100001
-        }
-
-        type ExtraMessage = u32;
-
         fn log_message(&self) -> Cow<'_, str> {
             format!("Plain Error Happened: {}", self.msg).into()
         }
@@ -57,12 +72,18 @@ mod error {
             StatusCode::BAD_REQUEST
         }
 
-        fn extra_message_default() -> Option<Self::ExtraMessage> {
-            Some(0)
+        type ExtraMessage = u32;
+
+        fn extra_message(&self) -> Self::ExtraMessage {
+            self.code
         }
 
         fn resp_message_default() -> Option<Cow<'static, str>> {
             Some("Success".into())
+        }
+
+        fn extra_message_default() -> Option<Self::ExtraMessage> {
+            Some(0)
         }
     }
 }
@@ -85,9 +106,7 @@ mod echo {
 
         match num {
             Ok(num) => Ok(format!("get number {}", num)),
-            Err(err) => Err(PlainError {
-                msg: format!("parse to num error {}", err),
-            }),
+            Err(err) => Err(PlainError::new(format!("parse to num error {}", err), 1001)),
         }
         .into()
     }
@@ -121,10 +140,28 @@ mod want_304 {
     }
 }
 
+mod rtry_router {
+    use axum::extract::Path;
+    use resp_result::{resp_try, rtry, RespResult};
+
+    use crate::{error::PlainError, PlainRResult};
+
+    pub(super) async fn parse_to_i32(Path(v): Path<String>) -> PlainRResult<i32> {
+        let v = rtry! {v.parse::<i32>()};
+        RespResult::Success(v)
+    }
+    pub(super) async fn parse_to_i64(
+        Path((v, v2)): Path<(String, String)>,
+    ) -> RespResult<(i64, i64), PlainError> {
+        resp_try(async { Ok((v.parse()?, v2.parse()?)) }).await
+    }
+}
+
 async fn fallback(req: Request<Body>) -> PlainRResult<()> {
-    Err(PlainError {
-        msg: format!("Router not exist {}", req.uri()),
-    })
+    Err(PlainError::new(
+        format!("Router not exist {}", req.uri()),
+        1000,
+    ))
     .into()
 }
 
