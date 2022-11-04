@@ -20,7 +20,5 @@ jobs:
       with:
         toolchain: nightly
         components: clippy, rustfmt
-    - name: Fmt
-      run: cargo fmt --check
-    - name: Clippy
-      run: cargo clippy --all-features
+    - run: cargo fmt --check
+    - run: cargo clippy --all-features
