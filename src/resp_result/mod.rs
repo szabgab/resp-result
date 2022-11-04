@@ -4,6 +4,8 @@ use crate::resp_error::RespError;
 
 pub mod serde;
 pub mod to_response;
+mod try_macro;
+#[cfg(feature = "nightly_try_v2")]
 mod try_op;
 
 pub use to_response::Nil;

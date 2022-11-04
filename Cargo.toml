@@ -10,7 +10,7 @@ license = "MIT"
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = ["--cfg", "docsrs", "--cfg", "doc_cfg"]
+rustdoc-args = ["--cfg", "docsrs"]
 
 [[example]]
 name = "axum"
@@ -29,6 +29,7 @@ log = ["logger"]
 extra-error = []
 for-axum = ["axum"]
 for-actix = ["actix-web"]
+nightly_try_v2 = []
 
 [dependencies]
 serde_json = "1"
