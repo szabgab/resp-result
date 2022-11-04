@@ -1,4 +1,5 @@
 #![cfg_attr(feature = "nightly_try_v2", feature(try_trait_v2))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc = include_str!("../Readme.md")]
 
 mod config;
