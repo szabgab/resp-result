@@ -18,11 +18,11 @@ where
 {
     #[inline]
     fn into_rresult(self) -> RespResult<T, E> {
-        RespResult::from(self.map_err(|e| e.into()))
+        RespResult::from(self)
     }
 }
 
-impl< E, T> IntoRespResult<T, E> for RespResult<T, E>
+impl<E, T> IntoRespResult<T, E> for RespResult<T, E>
 where
     E: RespError,
 {
