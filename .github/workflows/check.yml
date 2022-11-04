@@ -21,4 +21,4 @@ jobs:
         toolchain: nightly
         components: clippy, rustfmt
     - run: cargo fmt --check
-    - run: cargo clippy --all-features
+    - run: cargo clippy --features=axum-full,actix-full 
