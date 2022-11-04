@@ -22,13 +22,14 @@ required-features = ["actix-full"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["axum-full"]
+default = ["axum-full", "tracing"]
 axum-full = ["log", "extra-error", "for-axum"]
 actix-full = ["log", "extra-error", "for-actix"]
-log = ["logger"]
+log = ["dep:logger", "trace?/log"]
+tracing = ["dep:trace"]
 extra-error = []
-for-axum = ["axum"]
-for-actix = ["actix-web"]
+for-axum = ["dep:axum"]
+for-actix = ["dep:actix-web"]
 nightly_try_v2 = []
 
 [dependencies]
@@ -36,6 +37,7 @@ serde_json = "1"
 http = "0.2"
 once_cell = "1"
 thiserror = "1.0.37"
+trace = { version = "0.1.37", package = "tracing", optional = true }
 
 [dependencies.serde]
 version = "1"
