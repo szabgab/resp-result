@@ -6,9 +6,6 @@ Help data structure for web framework response
 [![Crates.io](https://img.shields.io/crates/v/resp-result.svg?style=for-the-badge)](https://crates.io/crates/resp-result)
 ![Licente](https://img.shields.io/github/license/Goodjooy/resp-result?style=for-the-badge)
 
-- waiting for [try_trait_v2](https://github.com/rust-lang/rust/issues/84277) stable
-- **_Using Nightly Rust_**
-
 ## Why
 
 - `Result` will become `500` using as web framework response type when `Err(_)`, the action usually not I expect
@@ -29,7 +26,7 @@ add `resp-result` into your crate
 
 ```toml
 [dependencies]
-resp-result="*"
+resp-result = "*"
 ```
 
 #### feature flags
@@ -42,6 +39,7 @@ resp-result="*"
 - `log`: enable logging message on handling response (Default)
 - `axum-full` : equal to `for-axum` + `extra-error` + `log`
 - `actix-full` : equal to `for-actix` + `extra-error` + `log`
+- `nightly_try_v2` : impl `Try` for `RespResult` making it can using `?`, it will enable feature [try_trait_v2](https://github.com/rust-lang/rust/issues/84277) and require **Nightly** rust compiler
 
 ### Define an Error
 
