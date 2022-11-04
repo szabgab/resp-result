@@ -55,5 +55,5 @@ pub(crate) fn get_config() -> &'static InnerConfig {
     })
 }
 #[derive(Debug, thiserror::Error)]
-#[error("RespResult Configure had been set")]
+#[error("RespResult Configure has set")]
 pub struct SetRespResultConfigureError;
