@@ -41,6 +41,7 @@ where
     }
 }
 
+/// receive a [Future](core::future::Future) applying it immediately, then convent the result into [RespResult](crate::RespResult)
 pub async fn resp_try<Fut, T, E>(future: Fut) -> RespResult<T, E>
 where
     Fut: Future,
