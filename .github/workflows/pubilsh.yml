@@ -1,0 +1,28 @@
+name: publish
+
+on:
+  push:
+    branches: [ "publish" ]
+    paths:
+    - '**.toml'
+
+env:
+  CARGO_TERM_COLOR: always
+  CRATES_KEY: ${{ secrets.CRATES_KEY }}
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Publish this
+        run: cargo publish --token ${CRATES_KEY}
