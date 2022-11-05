@@ -23,12 +23,12 @@ impl<T, E: RespError> Try for RespResult<T, E> {
         match self {
             RespResult::Success(data) => {
                 #[cfg(feature = "tracing")]
-                event!(Level::Debug, control_flow = "Continue");
+                event!(Level::DEBUG, control_flow = "Continue");
                 ControlFlow::Continue(data)
             }
             RespResult::Err(e) => {
                 #[cfg(feature = "tracing")]
-                event!(Level::Debug, control_flow = "Break");
+                event!(Level::DEBUG, control_flow = "Break");
                 ControlFlow::Break(RespResult::Err(e))
             }
         }
