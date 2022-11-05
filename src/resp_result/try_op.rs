@@ -2,6 +2,8 @@ use std::{
     convert::Infallible,
     ops::{ControlFlow, FromResidual, Try},
 };
+#[cfg(feature = "tracing")]
+use trace::{event, Level};
 
 use crate::RespError;
 
@@ -20,13 +22,13 @@ impl<T, E: RespError> Try for RespResult<T, E> {
     fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
         match self {
             RespResult::Success(data) => {
-                #[cfg(feature = "log")]
-                logger::debug!("RespResult ControlFlow Continue");
+                #[cfg(feature = "tracing")]
+                event!(Level::Debug, control_flow = "Continue");
                 ControlFlow::Continue(data)
             }
             RespResult::Err(e) => {
-                #[cfg(feature = "log")]
-                logger::error!("RespResult ControlFlow Break : `{}`", &e.log_message());
+                #[cfg(feature = "tracing")]
+                event!(Level::Debug, control_flow = "Break");
                 ControlFlow::Break(RespResult::Err(e))
             }
         }

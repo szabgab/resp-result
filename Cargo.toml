@@ -14,7 +14,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [[example]]
 name = "axum"
-required-features = ["axum-full"]
+required-features = ["axum-full","tracing"]
 
 [[example]]
 name = "actix"
@@ -22,7 +22,7 @@ required-features = ["actix-full"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["axum-full", "tracing"]
+default = []
 axum-full = ["log", "extra-error", "for-axum"]
 actix-full = ["log", "extra-error", "for-actix"]
 log = ["dep:logger", "trace?/log"]

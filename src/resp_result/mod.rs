@@ -1,4 +1,6 @@
-use std::{any::type_name, fmt::Debug};
+use std::{fmt::Debug};
+#[cfg(feature="tracing")]
+use std::any::type_name;
 
 use crate::resp_error::RespError;
 
@@ -9,6 +11,8 @@ mod try_macro;
 mod try_op;
 
 pub use to_response::Nil;
+
+#[cfg(feature = "tracing")]
 use trace::{event, Level};
 
 /// resp result for more flexible control the response body
@@ -55,6 +59,7 @@ impl<T, E> RespResult<T, E> {
     where
         F: FnOnce(T) -> N,
     {
+        #[cfg(feature = "tracing")]
         event!(
             Level::TRACE,
             event = "Mapping",
@@ -75,6 +80,7 @@ impl<T, E> RespResult<T, E> {
     where
         F: FnOnce(E) -> N,
     {
+        #[cfg(feature = "tracing")]
         event!(
             Level::TRACE,
             event = "Mapping Error",
@@ -129,6 +135,7 @@ impl<T, E> RespResult<T, E> {
     #[inline]
     /// create an success [`RespResult`]
     pub fn ok(data: T) -> Self {
+        #[cfg(feature = "tracing")]
         event!(Level::INFO, result = "RespResult::Success");
         Self::Success(data)
     }
@@ -138,6 +145,7 @@ impl<T, E> RespResult<T, E> {
     where
         E: RespError,
     {
+        #[cfg(feature = "tracing")]
         event!(
             Level::ERROR,
             result = "RespResult::Err",
