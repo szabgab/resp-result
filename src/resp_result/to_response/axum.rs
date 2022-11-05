@@ -1,3 +1,4 @@
+
 #[cfg(feature = "for-axum")]
 impl<T, E> axum::response::IntoResponse for crate::RespResult<T, E>
 where
@@ -6,6 +7,9 @@ where
 {
     #[inline]
     fn into_response(self) -> axum::response::Response {
+        let span = trace::span!(trace::Level::DEBUG, "Prepare Axum Response");
+        let _enter = span.enter();
+
         let respond = super::PrepareRespond::from_resp_result(&self);
         let mut builder = axum::response::Response::builder().status(respond.status);
 

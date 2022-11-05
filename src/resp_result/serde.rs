@@ -1,4 +1,9 @@
 use serde::{ser::SerializeStruct, Serialize, Serializer};
+#[cfg(feature = "tracing")]
+use {
+    std::any::type_name,
+    trace::{event, span, Level},
+};
 
 use crate::{get_config, resp_body::RespBody, resp_error::RespError};
 
@@ -30,16 +35,35 @@ where
     where
         S: serde::Serializer,
     {
+        // init tracing
+        #[cfg(feature = "tracing")]
+        let span = span!(Level::TRACE, "Serialize resp-result");
+        #[cfg(feature = "tracing")]
+        let _enter = span.enter();
+
         let cfg = &get_config().serde;
         let (ok_size, err_size) = cfg.get_field_size();
 
-        #[cfg(feature = "log")]
-        logger::debug!("开始序列化 成功字段 : {} 失败字段：{}", ok_size, err_size);
+        #[cfg(feature = "tracing")]
+        event!(
+            Level::TRACE,
+            serialize_field.Ok = ok_size,
+            serialize_field.Err = err_size
+        );
+        // #[cfg(feature = "log")]
+        // logger::debug!("开始序列化 成功字段 : {} 失败字段：{}", ok_size, err_size);
 
         let resp = match self {
             RespResult::Success(data) => {
-                #[cfg(feature = "log")]
-                logger::debug!("序列化成功模式结果");
+                #[cfg(feature = "tracing")]
+                event!(
+                    Level::INFO,
+                    entry = "Success",
+                    "data.type" = type_name::<T>(),
+                    "data.payload.type" =
+                        type_name::<<T as crate::resp_body::LoadSerde>::SerdeData>()
+                );
+
                 let mut body = serializer.serialize_struct("RespResult", ok_size)?;
                 if let Some(ref signed_status) = cfg.signed_status {
                     body.serialize_field(signed_status.field, &signed_status.ok)?;
@@ -57,11 +81,13 @@ where
                 body.end()?
             }
             RespResult::Err(err) => {
-                #[cfg(feature = "log")]
-                {
-                    logger::debug!("序列化失败情况结果");
-                    logger::error!("错误信息 : {}", err.log_message())
-                }
+                #[cfg(feature = "tracing")]
+                event!(
+                    Level::ERROR,
+                    entry = "Error",
+                    "error.type" = type_name::<E>(),
+                    error = %err.log_message()
+                );
                 let mut body = serializer.serialize_struct("RespResult", err_size)?;
 
                 if let Some(ref status_sign) = cfg.signed_status {
@@ -74,7 +100,7 @@ where
                 body.serialize_field(cfg.err_msg_name, &err.resp_message())?;
 
                 if cfg.full_field {
-                    body.serialize_field(cfg.body_name, &Option::<()>::None)?;
+                    body.serialize_field(cfg.body_name, &())?;
                 }
                 body.end()?
             }

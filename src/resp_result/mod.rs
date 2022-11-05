@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{any::type_name, fmt::Debug};
 
 use crate::resp_error::RespError;
 
@@ -9,6 +9,7 @@ mod try_macro;
 mod try_op;
 
 pub use to_response::Nil;
+use trace::{event, Level};
 
 /// resp result for more flexible control the response body
 ///
@@ -54,11 +55,11 @@ impl<T, E> RespResult<T, E> {
     where
         F: FnOnce(T) -> N,
     {
-        #[cfg(feature = "log")]
-        logger::debug!(
-            "RespResult Mapping Success From `{}` to `{}`",
-            std::any::type_name::<T>(),
-            std::any::type_name::<N>()
+        event!(
+            Level::TRACE,
+            event = "Mapping",
+            from = type_name::<T>(),
+            to = type_name::<N>()
         );
         match self {
             RespResult::Success(data) => RespResult::Success(f(data)),
@@ -74,11 +75,11 @@ impl<T, E> RespResult<T, E> {
     where
         F: FnOnce(E) -> N,
     {
-        #[cfg(feature = "log")]
-        logger::debug!(
-            "RespResult Mapping Error From `{}` to `{}`",
-            std::any::type_name::<E>(),
-            std::any::type_name::<N>()
+        event!(
+            Level::TRACE,
+            event = "Mapping Error",
+            from = type_name::<E>(),
+            to = type_name::<N>()
         );
         match self {
             RespResult::Success(data) => RespResult::Success(data),
@@ -128,8 +129,7 @@ impl<T, E> RespResult<T, E> {
     #[inline]
     /// create an success [`RespResult`]
     pub fn ok(data: T) -> Self {
-        #[cfg(feature = "log")]
-        logger::info!("RespResult 成功分支",);
+        event!(Level::INFO, result = "RespResult::Success");
         Self::Success(data)
     }
     #[inline]
@@ -138,11 +138,11 @@ impl<T, E> RespResult<T, E> {
     where
         E: RespError,
     {
-        #[cfg(feature = "log")]
-        logger::error!(
-            "RespResult 异常分支 {} => {}",
-            std::any::type_name::<E>(),
-            err.log_message()
+        event!(
+            Level::ERROR,
+            result = "RespResult::Err",
+            "error.type" = type_name::<E>(),
+            error.message = %err.log_message()
         );
         Self::Err(err)
     }

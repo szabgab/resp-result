@@ -9,6 +9,10 @@ use error::PlainError;
 use http::Request;
 
 use resp_result::{set_config, RespResult};
+use trace::metadata::LevelFilter;
+use tracing_subscriber::{
+    fmt::format, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, EnvFilter,
+};
 use want_304::want_304;
 
 use std::net::SocketAddr;
@@ -17,7 +21,20 @@ use crate::rtry_router::{parse_to_i32, parse_to_i64};
 
 #[tokio::main]
 async fn main() {
-    simple_log::quick!();
+    let fmt = tracing_subscriber::fmt::layer()
+        .event_format(format().pretty())
+        .with_target(true)
+        .with_ansi(true)
+        .with_level(true)
+        .with_thread_ids(true)
+        .with_thread_names(true);
+
+    let filter = EnvFilter::builder()
+        .with_default_directive(LevelFilter::DEBUG.into())
+        .parse("")
+        .unwrap();
+
+    tracing_subscriber::registry().with(filter).with(fmt).init();
 
     set_config(&AxumConfig);
 
