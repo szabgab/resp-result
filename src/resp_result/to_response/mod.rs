@@ -5,6 +5,8 @@ pub mod axum;
 use std::str::FromStr;
 
 use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode};
+#[cfg(feature = "tracing")]
+use trace::{event, span, Level};
 
 use super::{serde::SerializeWrap, RespResult};
 use crate::{
@@ -32,6 +34,11 @@ impl PrepareRespond {
         T: RespBody,
         E: RespError,
     {
+        #[cfg(feature = "tracing")]
+        let span = span!(Level::DEBUG, "preparation for Response");
+        #[cfg(feature = "tracing")]
+        let _enter = span.enter();
+
         let mut this = Self {
             body: Vec::new(),
             status: StatusCode::OK,
@@ -40,22 +47,25 @@ impl PrepareRespond {
 
         #[allow(unused_variables)]
         let cfg = &get_config().resp;
-
+        #[cfg(feature = "tracing")]
+        event!(Level::DEBUG, prepare.state = "Set Payload");
         this.serde_body(resp);
-
+        #[cfg(feature = "tracing")]
+        event!(Level::DEBUG, prepare.state = "Set Status");
         this.set_status(resp);
-
+        #[cfg(feature = "tracing")]
+        event!(Level::DEBUG, prepare.state = "Set Headers");
         this.set_header(
             resp,
             #[cfg(feature = "extra-error")]
             cfg.extra_code.as_ref(),
         );
-
-        #[cfg(feature = "log")]
-        logger::info!(
-            "RespResult 响应 准备构造 Status :{} BodySize: {}",
-            this.status,
-            this.body.len()
+        #[cfg(feature = "tracing")]
+        event!(
+            Level::INFO,
+            prepare.state = "Ready",
+            response.status = %this.status,
+            response.payload.length = %this.body.len()
         );
 
         this
@@ -68,13 +78,18 @@ impl PrepareRespond {
         E: RespError,
     {
         if let BodyEffect::Continue = resp.body_effect(&mut self.body) {
+            #[cfg(feature = "tracing")]
+            event!(Level::DEBUG, body.body_effect = "Continue");
             serde_json::to_writer(&mut self.body, &SerializeWrap(resp))
                 .map_err(|err| {
-                    #[cfg(feature = "log")]
-                    logger::error!("RespResult 响应出现异常 : {}", err);
+                    #[cfg(feature = "tracing")]
+                    event!(Level::ERROR, info = "Serialize Error", error = %err);
                     err
                 })
                 .expect("Json 响应时序列化异常");
+        } else {
+            #[cfg(feature = "tracing")]
+            event!(Level::DEBUG, body.body_effect = "Empty");
         }
     }
 
@@ -86,22 +101,31 @@ impl PrepareRespond {
         T: RespBody,
         E: RespError,
     {
+        #[cfg(feature = "tracing")]
+        event!(Level::DEBUG, headers.content_type = %JSON_TYPE);
         self.headers.append(
             CONTENT_TYPE,
             HeaderValue::try_from(JSON_TYPE.as_ref()).expect("Bad HeaderValue"),
         );
         // extra header
+
         #[cfg(feature = "extra-error")]
-        match (resp, extra_header) {
-            (RespResult::Success(_), _) | (_, None) => (),
-            (RespResult::Err(err), Some(key)) => {
-                self.headers.append(
-                    key,
-                    HeaderValue::from_str(&err.extra_message().to_string())
-                        .expect("Bad HeaderValue"),
-                );
+        {
+            #[cfg(feature = "tracing")]
+            event!(Level::DEBUG, headers.extra_header = ?extra_header);
+            match (resp, extra_header) {
+                (RespResult::Success(_), _) | (_, None) => (),
+                (RespResult::Err(err), Some(key)) => {
+                    self.headers.append(
+                        key,
+                        HeaderValue::from_str(&err.extra_message().to_string())
+                            .expect("Bad HeaderValue"),
+                    );
+                }
             }
         }
+        #[cfg(feature = "tracing")]
+        event!(Level::DEBUG, "Apply Header Effect");
         resp.headers_effect(&mut self.headers);
     }
 
@@ -113,20 +137,28 @@ impl PrepareRespond {
         // status code
         let status = match resp {
             RespResult::Success(_) => {
-                #[cfg(feature = "log")]
-                logger::debug!("RespResult 接管的 [成功] 响应",);
+                #[cfg(feature = "tracing")]
+                event!(
+                    Level::INFO,
+                    resp_result = "RespResult::Success",
+                    status = %StatusCode::OK
+                );
                 StatusCode::OK
             }
             RespResult::Err(ref e) => {
-                #[cfg(feature = "log")]
-                logger::debug!(
-                    "RespResult 接管的 [异常] 响应 | {} => {}",
-                    std::any::type_name::<E>(),
-                    e.log_message()
+                #[cfg(feature = "tracing")]
+                event!(
+                    Level::DEBUG,
+                    result = "RespResult::Err",
+                    status = %e.http_code(),
+                    error = %e.log_message()
                 );
+
                 e.http_code()
             }
         };
+        #[cfg(feature = "tracing")]
+        event!(Level::DEBUG, "Apply Status Effect");
         self.status = resp.status_effect().unwrap_or(status)
     }
 }

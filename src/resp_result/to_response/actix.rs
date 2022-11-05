@@ -35,6 +35,11 @@ where
     T: crate::resp_body::RespBody,
     E: crate::RespError,
 {
+    #[cfg(feature = "tracing")]
+    let span = trace::span!(trace::Level::DEBUG, "Prepare Actix-Web Response");
+    #[cfg(feature = "tracing")]
+    let _enter = span.enter();
+
     let respond = super::PrepareRespond::from_resp_result(this);
     let mut resp = actix_web::HttpResponse::build(respond.status);
 

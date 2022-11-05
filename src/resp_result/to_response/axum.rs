@@ -6,6 +6,11 @@ where
 {
     #[inline]
     fn into_response(self) -> axum::response::Response {
+        #[cfg(feature = "tracing")]
+        let span = trace::span!(trace::Level::DEBUG, "Prepare Axum Response");
+        #[cfg(feature = "tracing")]
+        let _enter = span.enter();
+
         let respond = super::PrepareRespond::from_resp_result(&self);
         let mut builder = axum::response::Response::builder().status(respond.status);
 

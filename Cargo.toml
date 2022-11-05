@@ -14,7 +14,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [[example]]
 name = "axum"
-required-features = ["axum-full"]
+required-features = ["axum-full", "tracing"]
 
 [[example]]
 name = "actix"
@@ -22,13 +22,14 @@ required-features = ["actix-full"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["axum-full"]
-axum-full = ["log", "extra-error", "for-axum"]
-actix-full = ["log", "extra-error", "for-actix"]
-log = ["logger"]
+default = []
+axum-full = ["extra-error", "for-axum"]
+actix-full = ["extra-error", "for-actix"]
+log = ["tracing", "trace?/log"]
+tracing = ["dep:trace"]
 extra-error = []
-for-axum = ["axum"]
-for-actix = ["actix-web"]
+for-axum = ["dep:axum"]
+for-actix = ["dep:actix-web"]
 nightly_try_v2 = []
 
 [dependencies]
@@ -36,15 +37,11 @@ serde_json = "1"
 http = "0.2"
 once_cell = "1"
 thiserror = "1.0.37"
+trace = { version = "0.1.37", package = "tracing", optional = true }
 
 [dependencies.serde]
 version = "1"
 features = ["derive"]
-
-[dependencies.logger]
-optional = true
-package = "log"
-version = "0.4"
 
 [dependencies.axum]
 optional = true
@@ -61,3 +58,8 @@ version = "0.3"
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 simple-log = "1.6.0"
+tracing-subscriber = { version = "0.3.16", features = [
+    "fmt",
+    "registry",
+    "env-filter"
+] }
