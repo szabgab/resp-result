@@ -1,4 +1,3 @@
-
 #[cfg(feature = "for-axum")]
 impl<T, E> axum::response::IntoResponse for crate::RespResult<T, E>
 where

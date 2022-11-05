@@ -1,6 +1,6 @@
-use std::{fmt::Debug};
-#[cfg(feature="tracing")]
+#[cfg(feature = "tracing")]
 use std::any::type_name;
+use std::fmt::Debug;
 
 use crate::resp_error::RespError;
 

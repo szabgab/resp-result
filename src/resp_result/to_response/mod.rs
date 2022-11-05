@@ -16,7 +16,6 @@ use crate::{
     resp_error::RespError,
 };
 
-
 #[allow(dead_code)]
 static JSON_TYPE: &mime::Mime = &mime::APPLICATION_JSON;
 
@@ -34,7 +33,8 @@ impl PrepareRespond {
     where
         T: RespBody,
         E: RespError,
-    {#[cfg(feature = "tracing")]
+    {
+        #[cfg(feature = "tracing")]
         let span = span!(Level::DEBUG, "preparation for Response");
         #[cfg(feature = "tracing")]
         let _enter = span.enter();
