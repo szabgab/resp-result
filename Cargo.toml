@@ -14,7 +14,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [[example]]
 name = "axum"
-required-features = ["axum-full","tracing"]
+required-features = ["axum-full", "tracing"]
 
 [[example]]
 name = "actix"
@@ -23,9 +23,9 @@ required-features = ["actix-full"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
 default = []
-axum-full = ["log", "extra-error", "for-axum"]
-actix-full = ["log", "extra-error", "for-actix"]
-log = ["dep:logger", "trace?/log"]
+axum-full = ["extra-error", "for-axum"]
+actix-full = ["extra-error", "for-actix"]
+log = ["tracing", "trace?/log"]
 tracing = ["dep:trace"]
 extra-error = []
 for-axum = ["dep:axum"]
@@ -43,11 +43,6 @@ trace = { version = "0.1.37", package = "tracing", optional = true }
 version = "1"
 features = ["derive"]
 
-[dependencies.logger]
-optional = true
-package = "log"
-version = "0.4"
-
 [dependencies.axum]
 optional = true
 version = "0.5"
@@ -63,4 +58,8 @@ version = "0.3"
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 simple-log = "1.6.0"
-tracing-subscriber = { version = "0.3.16", features = ["fmt", "registry", "env-filter"] }
+tracing-subscriber = { version = "0.3.16", features = [
+    "fmt",
+    "registry",
+    "env-filter"
+] }
