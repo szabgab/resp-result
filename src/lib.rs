@@ -30,6 +30,9 @@ static RESP_RESULT_CONFIG: OnceCell<InnerConfig> = OnceCell::new();
 
 pub fn try_set_config<C: ConfigTrait>(cfg: &C) -> Result<(), SetRespResultConfigureError> {
     let inner = InnerConfig::from_cfg(cfg);
+
+    #[cfg(feature = "trace")]
+    trace::event!(trace::Level::DEBUG, set_config = "On Going");
     RESP_RESULT_CONFIG
         .set(inner)
         .map_err(|_| SetRespResultConfigureError)
@@ -41,17 +44,27 @@ pub fn try_set_config<C: ConfigTrait>(cfg: &C) -> Result<(), SetRespResultConfig
 ///
 /// the config can only been set once, multiple times set will cause panic
 pub fn set_config<C: ConfigTrait>(cfg: &C) {
-    let inner = InnerConfig::from_cfg(cfg);
-
-    if RESP_RESULT_CONFIG.set(inner).is_err() {
-        panic!("Resp Result 配置已经被设置了")
+    match try_set_config(cfg) {
+        Ok(_) => {
+            #[cfg(feature = "trace")]
+            trace::event!(trace::Level::INFO, set_config = "Ready");
+        }
+        Err(err) => {
+            #[cfg(feature = "trace")]
+            trace::event!(trace::Level::ERROR, set_config = "Error", error = %err);
+            panic!("{}", err);
+        }
     }
 }
 
 pub(crate) fn get_config() -> &'static InnerConfig {
     RESP_RESULT_CONFIG.get_or_init(|| {
-        #[cfg(feature = "log")]
-        logger::warn!("未配置RespResult 配置文件，将使用默认配置");
+        #[cfg(feature = "trace")]
+        trace::event!(
+            trace::Level::WARN,
+            set_config = "None",
+            action = "Using Default"
+        );
         Default::default()
     })
 }
