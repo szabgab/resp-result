@@ -2,7 +2,8 @@ use serde::{ser::SerializeStruct, Serialize, Serializer};
 #[cfg(feature = "tracing")]
 use {
     std::any::type_name,
-    trace::{event, span, Level},
+    trace as tracing,
+    trace::{event, Level},
 };
 
 use crate::{get_config, resp_body::RespBody, resp_error::RespError};
@@ -31,16 +32,11 @@ where
     T: RespBody,
     E: RespError,
 {
+    #[cfg_attr(feature = "tracing", trace::instrument(skip_all))]
     fn resp_serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        // init tracing
-        #[cfg(feature = "tracing")]
-        let span = span!(Level::TRACE, "Serialize resp-result");
-        #[cfg(feature = "tracing")]
-        let _enter = span.enter();
-
         let cfg = &get_config().serde;
         let (ok_size, err_size) = cfg.get_field_size();
 
@@ -50,14 +46,12 @@ where
             serialize_field.Ok = ok_size,
             serialize_field.Err = err_size
         );
-        // #[cfg(feature = "log")]
-        // logger::debug!("开始序列化 成功字段 : {} 失败字段：{}", ok_size, err_size);
 
         let resp = match self {
             RespResult::Success(data) => {
                 #[cfg(feature = "tracing")]
                 event!(
-                    Level::INFO,
+                    Level::DEBUG,
                     entry = "Success",
                     "data.type" = type_name::<T>(),
                     "data.payload.type" =
@@ -83,7 +77,7 @@ where
             RespResult::Err(err) => {
                 #[cfg(feature = "tracing")]
                 event!(
-                    Level::ERROR,
+                    Level::WARN,
                     entry = "Error",
                     "error.type" = type_name::<E>(),
                     error = %err.log_message()

@@ -1,3 +1,6 @@
+#[cfg(feature = "tracing")]
+use trace as tracing;
+
 #[cfg(feature = "for-actix")]
 impl<T, E> actix_web::Responder for crate::RespResult<T, E>
 where
@@ -30,11 +33,17 @@ where
 }
 
 #[cfg(feature = "for-actix")]
+#[cfg_attr(
+    feature = "tracing",
+    trace::instrument(name = "acitx-into-response", skip_all)
+)]
 fn to_actix_resp<T, E>(this: &crate::RespResult<T, E>) -> actix_web::HttpResponse
 where
     T: crate::resp_body::RespBody,
     E: crate::RespError,
 {
+    use crate::expect_ext::ExpectExt;
+
     #[cfg(feature = "tracing")]
     let span = trace::span!(trace::Level::DEBUG, "Prepare Actix-Web Response");
     #[cfg(feature = "tracing")]
@@ -45,14 +54,14 @@ where
 
     let mut last_head = None;
     for (k, v) in respond.headers {
-        let key = if let Some(name) = k {
-            last_head.replace(name.clone());
-            name
-        } else if let Some(name) = last_head.clone() {
-            name
-        } else {
-            panic!("Unknown Header Key")
-        };
+        let key = k
+            .map(|k| {
+                last_head.replace(k.clone());
+                k
+            })
+            .or_else(|| last_head.clone())
+            .with_expect("Unknown Header key");
+
         resp.append_header((key, v));
     }
 

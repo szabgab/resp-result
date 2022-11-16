@@ -4,6 +4,7 @@
 
 mod config;
 mod convert;
+mod expect_ext;
 mod extra_flag;
 mod owner_leak;
 mod resp_body;
