@@ -1,3 +1,6 @@
+#[cfg(feature = "tracing")]
+use trace as tracing;
+
 #[cfg(feature = "for-axum")]
 impl<T, E> axum::response::IntoResponse for crate::RespResult<T, E>
 where
@@ -5,22 +8,23 @@ where
     E: crate::RespError,
 {
     #[inline]
+    #[cfg_attr(
+        feature = "tracing",
+        trace::instrument(name = "axum-into-response", skip_all)
+    )]
     fn into_response(self) -> axum::response::Response {
-        #[cfg(feature = "tracing")]
-        let span = trace::span!(trace::Level::DEBUG, "Prepare Axum Response");
-        #[cfg(feature = "tracing")]
-        let _enter = span.enter();
+        use crate::expect_ext::ExpectExt;
 
         let respond = super::PrepareRespond::from_resp_result(&self);
         let mut builder = axum::response::Response::builder().status(respond.status);
 
         builder
             .headers_mut()
-            .expect("RespResult 构造响应时发生异常")
+            .with_expect("RespResult 构造响应时发生异常")
             .extend(respond.headers);
         builder
             .body(axum::body::boxed(axum::body::Full::from(respond.body)))
-            .expect("RespResult 构造响应时发生异常")
+            .with_expect("RespResult 构造响应时发生异常")
     }
 }
 #[cfg(feature = "for-axum")]

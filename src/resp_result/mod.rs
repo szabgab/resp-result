@@ -135,8 +135,6 @@ impl<T, E> RespResult<T, E> {
     #[inline]
     /// create an success [`RespResult`]
     pub fn ok(data: T) -> Self {
-        #[cfg(feature = "tracing")]
-        event!(Level::INFO, result = "RespResult::Success");
         Self::Success(data)
     }
     #[inline]
@@ -145,13 +143,6 @@ impl<T, E> RespResult<T, E> {
     where
         E: RespError,
     {
-        #[cfg(feature = "tracing")]
-        event!(
-            Level::ERROR,
-            result = "RespResult::Err",
-            "error.type" = type_name::<E>(),
-            error.message = %err.log_message()
-        );
         Self::Err(err)
     }
 }

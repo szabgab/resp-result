@@ -9,7 +9,8 @@ use error::PlainError;
 use http::Request;
 
 use resp_result::{set_config, RespResult};
-use trace::metadata::LevelFilter;
+use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, TraceLayer};
+use trace::{metadata::LevelFilter, Level};
 use tracing_subscriber::{
     fmt::format, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, EnvFilter,
 };
@@ -26,11 +27,12 @@ async fn main() {
         .with_target(true)
         .with_ansi(true)
         .with_level(true)
+        .with_file(true)
         .with_thread_ids(true)
         .with_thread_names(true);
 
     let filter = EnvFilter::builder()
-        .with_default_directive(LevelFilter::DEBUG.into())
+        .with_default_directive(LevelFilter::INFO.into())
         .parse("")
         .unwrap();
 
@@ -49,7 +51,13 @@ async fn main() {
                 .route("/i32/:v", get(parse_to_i32))
                 .route("/i64/:v/:v2", get(parse_to_i64)),
         )
-        .fallback(any(fallback));
+        .route("/panic", get(|| async { panic!("Panic it") }))
+        .fallback(any(fallback))
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+                .on_request(DefaultOnRequest::new().level(Level::INFO)),
+        );
 
     Server::bind(&addr)
         .serve(router.into_make_service())
