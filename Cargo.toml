@@ -22,7 +22,7 @@ required-features = ["actix-full","nightly_try_v2"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["tracing", "axum-full", "actix-full"]
+default = []
 axum-full = ["extra-error", "for-axum"]
 actix-full = ["extra-error", "for-actix"]
 log = ["tracing", "trace?/log"]

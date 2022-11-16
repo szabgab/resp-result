@@ -56,7 +56,7 @@ impl<T> ExpectExt<T, ()> for Option<T> {
         }
     }
 
-    fn with_expect_err(self, msg: &str) -> ()
+    fn with_expect_err(self, msg: &str)
     where
         T: Debug,
     {

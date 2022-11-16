@@ -8,7 +8,10 @@ where
     E: crate::RespError,
 {
     #[inline]
-    #[cfg_attr(feature = "tracing", trace::instrument(name = "axum-into-response",skip_all))]
+    #[cfg_attr(
+        feature = "tracing",
+        trace::instrument(name = "axum-into-response", skip_all)
+    )]
     fn into_response(self) -> axum::response::Response {
         use crate::expect_ext::ExpectExt;
 
