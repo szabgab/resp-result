@@ -18,7 +18,7 @@ jobs:
     - name: Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: nightly
+        toolchain: nightly, 1.65.0
         components: clippy, rustfmt
     - run: cargo fmt --check
     - run: cargo clippy --no-default-features
