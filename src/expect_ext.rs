@@ -66,9 +66,10 @@ impl<T> ExpectExt<T, ()> for Option<T> {
         }
         #[cfg(not(feature = "tracing"))]
         {
-            let None = self else {
-                    panic!("not None {} {self:?}",msg)
-                };
+            match self {
+                this @ Some(_) => panic!("not None {} {this:?}", msg),
+                None => (),
+            };
         }
     }
 }
