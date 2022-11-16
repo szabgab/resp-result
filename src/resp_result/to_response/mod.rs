@@ -66,7 +66,8 @@ impl PrepareRespond {
         event!(
             Level::INFO,
             response.status = %this.status,
-            response.payload.length = %this.body.len()
+            response.headers = ?this.headers,
+            response.payload = %std::str::from_utf8(&this.body).with_expect("invalid Utf8 encode"),
         );
 
         this

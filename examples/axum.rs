@@ -23,11 +23,10 @@ use crate::rtry_router::{parse_to_i32, parse_to_i64};
 #[tokio::main]
 async fn main() {
     let fmt = tracing_subscriber::fmt::layer()
-        .event_format(format().pretty())
+        .event_format(format())
         .with_target(true)
         .with_ansi(true)
         .with_level(true)
-        .with_file(true)
         .with_thread_ids(true)
         .with_thread_names(true);
 
