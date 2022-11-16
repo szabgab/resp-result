@@ -77,7 +77,7 @@ where
             RespResult::Err(err) => {
                 #[cfg(feature = "tracing")]
                 event!(
-                    Level::WARN,
+                    Level::DEBUG,
                     entry = "Error",
                     "error.type" = type_name::<E>(),
                     error = %err.log_message()
