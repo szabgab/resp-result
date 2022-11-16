@@ -1,4 +1,4 @@
-#[cfg(all(feature = "tracing",feature = "for-actix"))]
+#[cfg(all(feature = "tracing", feature = "for-actix"))]
 use trace as tracing;
 
 #[cfg(feature = "for-actix")]

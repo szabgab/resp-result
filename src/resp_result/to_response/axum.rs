@@ -1,4 +1,4 @@
-#[cfg(all(feature = "tracing",feature = "for-axum"))]
+#[cfg(all(feature = "tracing", feature = "for-axum"))]
 use trace as tracing;
 
 #[cfg(feature = "for-axum")]
