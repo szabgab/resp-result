@@ -4,16 +4,19 @@ pub mod axum;
 #[allow(unused_imports)]
 use std::str::FromStr;
 
-use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode};
-#[cfg(feature = "tracing")]
-use trace::{event, span, Level};
-
 use super::{serde::SerializeWrap, RespResult};
 use crate::{
+    expect_ext::ExpectExt,
     extra_flag::effect::{BodyEffect, Effects},
     get_config,
     resp_body::RespBody,
     resp_error::RespError,
+};
+use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode};
+#[cfg(feature = "tracing")]
+use {
+    trace as tracing,
+    trace::{event, instrument, Level},
 };
 
 #[allow(dead_code)]
@@ -29,16 +32,15 @@ struct PrepareRespond {
 impl PrepareRespond {
     #[allow(dead_code)]
     #[inline]
+    #[cfg_attr(
+        feature = "tracing",
+        instrument(fields(this = "PrepareRespond"), skip_all)
+    )]
     pub fn from_resp_result<T, E>(resp: &RespResult<T, E>) -> Self
     where
         T: RespBody,
         E: RespError,
     {
-        #[cfg(feature = "tracing")]
-        let span = span!(Level::DEBUG, "preparation for Response");
-        #[cfg(feature = "tracing")]
-        let _enter = span.enter();
-
         let mut this = Self {
             body: Vec::new(),
             status: StatusCode::OK,
@@ -63,7 +65,6 @@ impl PrepareRespond {
         #[cfg(feature = "tracing")]
         event!(
             Level::INFO,
-            prepare.state = "Ready",
             response.status = %this.status,
             response.payload.length = %this.body.len()
         );
@@ -81,12 +82,7 @@ impl PrepareRespond {
             #[cfg(feature = "tracing")]
             event!(Level::DEBUG, body.body_effect = "Continue");
             serde_json::to_writer(&mut self.body, &SerializeWrap(resp))
-                .map_err(|err| {
-                    #[cfg(feature = "tracing")]
-                    event!(Level::ERROR, info = "Serialize Error", error = %err);
-                    err
-                })
-                .expect("Json 响应时序列化异常");
+                .with_expect("Json 响应时序列化异常");
         } else {
             #[cfg(feature = "tracing")]
             event!(Level::DEBUG, body.body_effect = "Empty");
@@ -105,7 +101,7 @@ impl PrepareRespond {
         event!(Level::DEBUG, headers.content_type = %JSON_TYPE);
         self.headers.append(
             CONTENT_TYPE,
-            HeaderValue::try_from(JSON_TYPE.as_ref()).expect("Bad HeaderValue"),
+            HeaderValue::try_from(JSON_TYPE.as_ref()).with_expect("Bad HeaderValue"),
         );
         // extra header
 
@@ -119,7 +115,7 @@ impl PrepareRespond {
                     self.headers.append(
                         key,
                         HeaderValue::from_str(&err.extra_message().to_string())
-                            .expect("Bad HeaderValue"),
+                            .with_expect("Bad HeaderValue"),
                     );
                 }
             }
@@ -136,19 +132,11 @@ impl PrepareRespond {
     {
         // status code
         let status = match resp {
-            RespResult::Success(_) => {
-                #[cfg(feature = "tracing")]
-                event!(
-                    Level::INFO,
-                    resp_result = "RespResult::Success",
-                    status = %StatusCode::OK
-                );
-                StatusCode::OK
-            }
+            RespResult::Success(_) => StatusCode::OK,
             RespResult::Err(ref e) => {
                 #[cfg(feature = "tracing")]
                 event!(
-                    Level::DEBUG,
+                    Level::WARN,
                     result = "RespResult::Err",
                     status = %e.http_code(),
                     error = %e.log_message()

@@ -5,6 +5,8 @@ use std::{
 
 use http::{header::HeaderName, HeaderValue, StatusCode};
 
+use crate::expect_ext::ExpectExt;
+
 #[derive(Debug, Hash, PartialEq, Eq)]
 /// the basic flag that can be using
 pub enum ExtraFlag {
@@ -49,8 +51,8 @@ impl ExtraFlag {
         V::Error: Debug,
     {
         Self::SetHeader(
-            key.try_into().expect("Bad Header Name"),
-            value.try_into().expect("Bad Header Value"),
+            key.try_into().with_expect("Bad Header Name"),
+            value.try_into().with_expect("Bad Header Value"),
             HeaderType::Append,
         )
     }
@@ -65,8 +67,8 @@ impl ExtraFlag {
         V::Error: Debug,
     {
         Self::SetHeader(
-            key.try_into().expect("Bad Header Name"),
-            value.try_into().expect("Bad Header Value"),
+            key.try_into().with_expect("Bad Header Name"),
+            value.try_into().with_expect("Bad Header Value"),
             HeaderType::Insert,
         )
     }
@@ -78,7 +80,7 @@ impl ExtraFlag {
         K: TryInto<HeaderName>,
         K::Error: Debug,
     {
-        Self::RemoveHeader(key.try_into().expect("Bad Header Name"))
+        Self::RemoveHeader(key.try_into().with_expect("Bad Header Name"))
     }
 }
 
