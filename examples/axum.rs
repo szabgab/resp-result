@@ -51,7 +51,7 @@ async fn main() {
                 .route("/i64/:v/:v2", get(parse_to_i64)),
         )
         .route("/panic", get(|| async { panic!("Panic it") }))
-        .fallback(any(fallback))
+        .fallback(fallback)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
@@ -67,12 +67,19 @@ async fn main() {
 mod error {
     use std::{borrow::Cow, num::ParseIntError};
 
+    use axum::extract::rejection::PathRejection;
     use http::StatusCode;
     use resp_result::RespError;
 
     pub(super) struct PlainError {
         pub(super) msg: String,
         pub(super) code: u32,
+    }
+
+    impl From<PathRejection> for PlainError {
+        fn from(err: PathRejection) -> Self {
+            Self::new(err.to_string(), 991)
+        }
     }
 
     impl From<ParseIntError> for PlainError {
@@ -116,23 +123,20 @@ type PlainRResult<T> = RespResult<T, PlainError>;
 
 mod echo {
     use axum::extract::Path;
+    use resp_result::MapReject;
     use serde::Deserialize;
 
     use crate::{error::PlainError, PlainRResult};
 
     #[derive(Debug, Deserialize)]
     pub(super) struct Input {
-        num: String,
+        num: i32,
     }
 
-    pub(super) async fn echo_number(Path(Input { num }): Path<Input>) -> PlainRResult<String> {
-        let num = num.parse::<i32>();
-
-        match num {
-            Ok(num) => Ok(format!("get number {}", num)),
-            Err(err) => Err(PlainError::new(format!("parse to num error {}", err), 1001)),
-        }
-        .into()
+    pub(super) async fn echo_number(
+        MapReject(Input { num }): MapReject<Path<Input>, PlainError>,
+    ) -> PlainRResult<String> {
+        Ok(format!("echo number {num}")).into()
     }
 }
 
