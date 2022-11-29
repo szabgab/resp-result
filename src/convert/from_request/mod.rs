@@ -1,4 +1,3 @@
-
 #[cfg(feature = "for-actix")]
 mod actix;
 
@@ -21,4 +20,3 @@ where
 }
 
 pub struct MapReject<T: FromRequestFamily<E>, E>(pub <T::Payload as ToInner>::Inner);
-

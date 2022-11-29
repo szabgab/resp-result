@@ -1,11 +1,11 @@
 use std::{
+    future::Future,
     marker::PhantomPinned,
     pin::Pin,
-    task::{Context, Poll}, future::Future,
+    task::{Context, Poll},
 };
 
 use actix_web::FromRequest;
-
 
 use crate::{FromRequestFamily, MapReject, Nil, RespError, RespResult, ToInner};
 
