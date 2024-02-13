@@ -23,7 +23,7 @@ where
             .with_expect("RespResult 构造响应时发生异常")
             .extend(respond.headers);
         builder
-            .body(axum::body::boxed(axum::body::Full::from(respond.body)))
+            .body(axum::body::Body::from(respond.body))
             .with_expect("RespResult 构造响应时发生异常")
     }
 }

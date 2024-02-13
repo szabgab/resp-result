@@ -1,14 +1,11 @@
-use axum::{
-    body::Body,
-    routing::{any, get},
-    Router, Server,
-};
+use axum::{body::Body, routing::get, Router};
 use config::AxumConfig;
 use echo::echo_number;
 use error::PlainError;
 use http::Request;
 
 use resp_result::{set_config, RespResult};
+use tokio::net::TcpListener;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, TraceLayer};
 use trace::{metadata::LevelFilter, Level};
 use tracing_subscriber::{
@@ -58,8 +55,9 @@ async fn main() {
                 .on_request(DefaultOnRequest::new().level(Level::INFO)),
         );
 
-    Server::bind(&addr)
-        .serve(router.into_make_service())
+    let listen = TcpListener::bind(&addr).await.expect("Start server Error");
+
+    axum::serve(listen, router.into_make_service())
         .await
         .expect("Server Error");
 }
