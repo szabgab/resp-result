@@ -75,3 +75,7 @@ pub(crate) fn get_config() -> &'static InnerConfig {
 #[derive(Debug, thiserror::Error)]
 #[error("RespResult Configure has set")]
 pub struct SetRespResultConfigureError;
+
+pub use axum_resp_result_code_gen::resp_result;
+pub use axum_resp_result_code_gen::resp_result as rresult;
+pub use convert::Fallible;

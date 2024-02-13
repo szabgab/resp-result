@@ -120,21 +120,21 @@ mod error {
 type PlainRResult<T> = RespResult<T, PlainError>;
 
 mod echo {
-    use axum::extract::Path;
-    use resp_result::MapReject;
-    use serde::Deserialize;
-
     use crate::{error::PlainError, PlainRResult};
+    use axum::extract::Path;
+    use axum_resp_result::rresult;
+    use axum_resp_result::MapReject;
+    use serde::Deserialize;
 
     #[derive(Debug, Deserialize)]
     pub(super) struct Input {
         num: i32,
     }
-
+    #[rresult]
     pub(super) async fn echo_number(
         MapReject(Input { num }): MapReject<Path<Input>, PlainError>,
-    ) -> PlainRResult<String> {
-        Ok(format!("echo number {num}")).into()
+    ) -> Result<String, PlainError> {
+        Ok(format!("echo number {num}"))
     }
 }
 
