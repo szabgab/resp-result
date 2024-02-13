@@ -14,7 +14,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [[example]]
 name = "axum"
-required-features = ["axum-full", "tracing"]
+required-features = ["tracing"]
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
