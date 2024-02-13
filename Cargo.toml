@@ -1,5 +1,5 @@
 [package]
-name = "resp-result"
+name = "axum-resp-result"
 version = "0.5.2"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
@@ -16,20 +16,12 @@ rustdoc-args = ["--cfg", "docsrs"]
 name = "axum"
 required-features = ["axum-full", "tracing"]
 
-[[example]]
-name = "actix"
-required-features = ["actix-full", "nightly_try_v2"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["axum-full", "tracing"]
-axum-full = ["extra-error", "for-axum"]
-actix-full = ["extra-error", "for-actix"]
 log = ["tracing", "trace?/log"]
 tracing = ["dep:trace", "dep:tracing-unwrap"]
 extra-error = []
-for-axum = ["dep:axum"]
-for-actix = ["dep:actix-web"]
 nightly_try_v2 = []
 
 [dependencies]
@@ -48,12 +40,7 @@ version = "1"
 features = ["derive"]
 
 [dependencies.axum]
-optional = true
 version = "0.7"
-
-[dependencies.actix-web]
-optional = true
-version = "^4"
 
 [dependencies.mime]
 version = "0.3"
