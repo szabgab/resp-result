@@ -4,6 +4,8 @@ use crate::ast_nodes::function_loader::Function;
 
 mod arg_loader;
 mod ast_nodes;
+
+/// convert a return [Result] [`Handler`](axum::Handler) return [`RespResult`]
 #[proc_macro_attribute]
 pub fn resp_result(
     _: proc_macro::TokenStream,

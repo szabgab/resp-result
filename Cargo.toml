@@ -2,7 +2,7 @@ workspace = { members = ["code-gen"] }
 
 [package]
 name = "axum-resp-result"
-version = "0.6.1"
+version = "0.6.2"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum Response"
