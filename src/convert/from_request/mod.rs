@@ -1,4 +1,3 @@
-#[cfg(feature = "for-axum")]
 mod axum;
 pub trait ToInner {
     type Inner;

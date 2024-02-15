@@ -11,7 +11,6 @@ mod resp_body;
 mod resp_error;
 mod resp_result;
 
-#[cfg(feature = "for-axum")]
 pub use self::resp_result::to_response::axum::axum_respond_part;
 use once_cell::sync::OnceCell;
 
