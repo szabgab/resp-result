@@ -1,7 +1,6 @@
-#[cfg(all(feature = "tracing", feature = "for-axum"))]
+use axum;
+#[cfg(feature = "tracing")]
 use trace as tracing;
-
-#[cfg(feature = "for-axum")]
 impl<T, E> axum::response::IntoResponse for crate::RespResult<T, E>
 where
     T: crate::resp_body::RespBody,
@@ -27,7 +26,6 @@ where
             .with_expect("RespResult 构造响应时发生异常")
     }
 }
-#[cfg(feature = "for-axum")]
 pub mod axum_respond_part {
     use std::{convert::Infallible, future::Future};
 
@@ -160,9 +158,9 @@ pub mod axum_respond_part {
             fn log_message(&self) -> std::borrow::Cow<'_, str> {
                 "Mock Error".into()
             }
-
+            #[cfg(feature = "extra-error")]
             type ExtraMessage = String;
-
+            #[cfg(feature = "extra-error")]
             fn extra_message(&self) -> Self::ExtraMessage {
                 String::new()
             }
