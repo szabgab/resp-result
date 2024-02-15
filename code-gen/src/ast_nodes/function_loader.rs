@@ -12,6 +12,7 @@ pub struct Function {
     block: Box<Block>,
     args: Vec<syn::Ident>,
     inner_ident: syn::Ident,
+    is_async: bool,
 }
 
 impl ToTokens for Function {
@@ -24,8 +25,14 @@ impl ToTokens for Function {
             outer_sig,
             args,
             inner_ident,
+            is_async,
         } = self;
 
+        let ay = if *is_async {
+            Some(quote!(.await))
+        } else {
+            None
+        };
         let inner = quote!(#inner_sig #block);
         let outer = quote! {
             #(#attrs)*
@@ -33,7 +40,7 @@ impl ToTokens for Function {
             {
                 #inner
 
-                let __tmp = #inner_ident(#(#args),*);
+                let __tmp = #inner_ident(#(#args),*)#ay;
                 let __tmp = ::axum_resp_result::Fallible::to_result(__tmp);
                 ::axum_resp_result::IntoRespResult::into_rresult(__tmp)
             }
@@ -77,6 +84,7 @@ impl Parse for Function {
         };
 
         let new_ret = syn::parse::<ReturnType>(quote!(-> #new_ret).into())?;
+        let is_async = inner_sig.asyncness.is_some();
         outer_sig.output = new_ret;
 
         let mut args = Vec::new();
@@ -113,6 +121,7 @@ impl Parse for Function {
             outer_sig,
             args,
             inner_ident,
+            is_async,
         })
     }
 }
