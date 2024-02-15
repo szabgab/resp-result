@@ -1,7 +1,6 @@
-#[cfg(all(feature = "tracing", feature = "for-axum"))]
+#[cfg(feature = "tracing")]
 use trace as tracing;
 
-#[cfg(feature = "for-axum")]
 impl<T, E> axum::response::IntoResponse for crate::RespResult<T, E>
 where
     T: crate::resp_body::RespBody,
