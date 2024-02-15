@@ -1,6 +1,6 @@
 [package]
-name = "axum-resp-result-code-gen"
-version = "0.1.0"
+name = "axum-resp-result-macro"
+version = "0.6.0"
 edition = "2021"
 
 [lib]
