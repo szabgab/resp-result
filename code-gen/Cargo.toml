@@ -2,6 +2,11 @@
 name = "axum-resp-result-macro"
 version = "0.6.0"
 edition = "2021"
+authors = ["FrozenString<frozenstringstable@gmail.com>"]
+description = "Help Struct For Axum Response"
+homepage = "https://github.com/Goodjooy/resp-result"
+documentation = "https://docs.rs/resp-result"
+license = "MIT"
 
 [lib]
 proc-macro = true
