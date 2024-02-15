@@ -31,12 +31,9 @@ resp-result = "*"
 
 #### feature flags
 
-- `for-axum`: enable [axum](https://crates.io/crates/axum) support, that will impl [`IntoResponse`](https://docs.rs/axum/latest/axum/response/trait.IntoResponse.html#) for `RespResult`
-
 - `extra-error`: enable extra error message in trait `RespError`
 - `log`: make [tracing](https://docs.rs/tracing/latest/tracing/) also logger to the [log](https://docs.rs/log/0.4.6/log/)
 - `tracing` : enable recorder using [tracing](https://docs.rs/tracing/latest/tracing/)
-- `axum-full` : equal to `for-axum` + `extra-error`
 - `nightly_try_v2` : impl `Try` for `RespResult` making it can using `?`, it will enable feature [try_trait_v2](https://github.com/rust-lang/rust/issues/84277) and require **Nightly** rust compiler
 
 ### Define an Error
