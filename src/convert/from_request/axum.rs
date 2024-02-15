@@ -1,38 +1,12 @@
 use core::{future::Future, marker::Send, pin::Pin};
 
-use axum::extract::{FromRequest, FromRequestParts};
+use axum::extract::FromRequestParts;
 use futures::TryFutureExt;
 
 use crate::{Nil, RespError, RespResult};
 
 use super::{FromRequestFamily, MapReject, ToInner};
 
-impl<S, B, T, E> FromRequest<S, B> for MapReject<T, E>
-where
-    B: Send + 'static,
-    S: Sync,
-    E: Send + From<<T::Payload as FromRequest<S, B>>::Rejection> + RespError,
-    T: FromRequestFamily<E>,
-    T::Payload: FromRequest<S, B>,
-{
-    type Rejection = RespResult<Nil, E>;
-
-    fn from_request<'life0, 'async_trait>(
-        req: http::Request<B>,
-        state: &'life0 S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::Rejection>> + Send + 'async_trait>>
-    where
-        'life0: 'async_trait,
-        Self: 'async_trait,
-    {
-        Box::pin(async {
-            <T::Payload as FromRequest<S, B>>::from_request(req, state)
-                .map_err(|err| RespResult::<Nil, _>::Err(E::from(err)))
-                .map_ok(|data| MapReject::<T, E>(data.to_inner()))
-                .await
-        })
-    }
-}
 impl<S, T, E> FromRequestParts<S> for MapReject<T, E>
 where
     S: Sync,

@@ -1,6 +1,3 @@
-#[cfg(feature = "for-actix")]
-mod actix;
-
 #[cfg(feature = "for-axum")]
 mod axum;
 pub trait ToInner {

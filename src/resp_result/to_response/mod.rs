@@ -1,4 +1,3 @@
-mod actix;
 pub mod axum;
 
 #[allow(unused_imports)]

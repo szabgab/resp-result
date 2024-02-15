@@ -1,5 +1,5 @@
 pub mod from_request;
-use std::future::Future;
+use std::{convert::Infallible, future::Future};
 
 use crate::{RespError, RespResult};
 
@@ -40,6 +40,46 @@ where
     #[inline]
     fn into_with_err<Et: Into<E>>(self, err: Et) -> RespResult<T, E> {
         self.ok_or(err).map_err(Into::into).into_rresult()
+    }
+}
+
+pub trait Fallible {
+    type Success;
+    type Failure;
+
+    fn to_result(self) -> Result<Self::Success, Self::Failure>;
+}
+
+impl<T, R> Fallible for Result<T, R> {
+    type Success = T;
+
+    type Failure = R;
+
+    fn to_result(self) -> Result<Self::Success, Self::Failure> {
+        self
+    }
+}
+
+impl<T, R> Fallible for RespResult<T, R> {
+    type Success = T;
+
+    type Failure = R;
+
+    fn to_result(self) -> Result<<Self as Fallible>::Success, Self::Failure> {
+        match self {
+            RespResult::Success(suc) => Ok(suc),
+            RespResult::Err(err) => Err(err),
+        }
+    }
+}
+
+impl Fallible for () {
+    type Success = ();
+
+    type Failure = Infallible;
+
+    fn to_result(self) -> Result<Self::Success, Self::Failure> {
+        Ok(self)
     }
 }
 

@@ -2,9 +2,9 @@ name: publish
 
 on:
   push:
-    branches: [ "publish" ]
+    branches: ["publish"]
     paths:
-    - '**.toml'
+      - "**.toml"
 
 env:
   CARGO_TERM_COLOR: always
@@ -24,5 +24,14 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+
+      - name: Publish Macro
+        run: cargo publish -p axum-starter-macro --token ${CRATES_KEY}
+
+      - name: Sleep for 60 seconds
+        if: success()
+        run: sleep 60s
+        shell: bash
+
       - name: Publish this
         run: cargo publish --token ${CRATES_KEY}
