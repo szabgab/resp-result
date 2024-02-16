@@ -36,7 +36,7 @@ tracing-unwrap = { version = "0.10.0", features = [
     "log-location",
 ], optional = true }
 futures = "0.3"
-axum-resp-result-macro = { version = "0.6.3" }
+axum-resp-result-macro = { version = "0.6.2" }
 
 [dependencies.serde]
 version = "1"
