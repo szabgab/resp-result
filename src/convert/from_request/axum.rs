@@ -31,11 +31,10 @@ where
         Self: 'async_trait,
     {
         Box::pin(async {
-            let payload = <T::Payload as FromRequest<S>>::from_request(req, state)
+            <T::Payload as FromRequest<S>>::from_request(req, state)
                 .await
                 .map_err(|err| RespResult::Err(E::from(err)))
-                .map(|data| Self(data.to_inner()));
-            payload
+                .map(|data| Self(data.to_inner()))
         })
     }
 }
