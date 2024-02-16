@@ -1,9 +1,8 @@
+mod derive_resp_error;
+mod proc_resp_result;
 use quote::quote;
 
-use crate::ast_nodes::function_loader::Function;
-
-mod arg_loader;
-mod ast_nodes;
+use proc_resp_result::Function;
 
 /// convert a return [Result] [`Handler`](axum::Handler) return [`RespResult`]
 #[proc_macro_attribute]
