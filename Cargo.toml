@@ -6,8 +6,8 @@ version = "0.7.1"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum Response"
-homepage = "https://github.com/Goodjooy/axum-resp-result"
-documentation = "https://docs.rs/resp-result"
+homepage = "https://github.com/Goodjooy/resp-result"
+documentation = "https://docs.rs/axum-resp-result"
 license = "MIT"
 
 [package.metadata.docs.rs]
