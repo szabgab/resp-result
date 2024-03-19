@@ -2,7 +2,7 @@ workspace = { members = ["code-gen"] }
 
 [package]
 name = "axum-resp-result"
-version = "0.6.3"
+version = "0.7.0"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum Response"
@@ -40,7 +40,7 @@ tracing-unwrap = { version = "0.10.0", features = [
     "log-location",
 ], optional = true }
 futures = "0.3"
-axum-resp-result-macro = { version = "0.6.3", path = "code-gen"}
+axum-resp-result-macro = { version = "0.7.0" }
 
 [dependencies.serde]
 version = "1"
