@@ -1,6 +1,7 @@
 mod derive_resp_error;
 mod proc_resp_result;
 use quote::quote;
+use syn::spanned::Spanned;
 use syn::{parse_macro_input, DeriveInput};
 
 use crate::derive_resp_error::gen_resp_error_derive;
@@ -19,6 +20,14 @@ pub fn resp_result(
 #[proc_macro_derive(RespError, attributes(resp_result))]
 pub fn derive_resp_error(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+    if cfg!(feature = "extra-err") {
+        return syn::Error::new(
+            input.span(),
+            "Derive macro `RespError` not support `extra-message` yet",
+        )
+        .into_compile_error()
+        .into();
+    }
     let token_stream = gen_resp_error_derive(&input).unwrap_or_else(|err| err.into_compile_error());
     token_stream.into()
 }

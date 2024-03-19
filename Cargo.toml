@@ -27,7 +27,7 @@ required-features = ["tracing"]
 [features]
 log = ["tracing", "trace?/log"]
 tracing = ["dep:trace", "dep:tracing-unwrap"]
-extra-error = []
+extra-error = ["axum-resp-result-macro/extra-error"]
 nightly_try_v2 = []
 
 [dependencies]

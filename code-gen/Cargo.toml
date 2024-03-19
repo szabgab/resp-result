@@ -11,6 +11,10 @@ license = "MIT"
 [lib]
 proc-macro = true
 
+
+
+[features]
+extra-error=[]
 [dependencies]
 darling = "0.20"
 proc-macro2 = "1"
