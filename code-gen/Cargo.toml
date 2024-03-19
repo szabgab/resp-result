@@ -1,11 +1,11 @@
 [package]
 name = "axum-resp-result-macro"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2021"
 authors = ["FrozenString<frozenstringstable@gmail.com>"]
 description = "Help Struct For Axum Response"
 homepage = "https://github.com/Goodjooy/resp-result"
-documentation = "https://docs.rs/resp-result"
+documentation = "https://docs.rs/axum-resp-result-macro"
 license = "MIT"
 
 [lib]
