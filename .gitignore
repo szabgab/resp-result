@@ -2,8 +2,8 @@
 /Cargo.lock
 /tmp
 /.idea/.gitignore
-/code-gen/src/arg_loader/mod.rs
-/code-gen/src/derive_resp_error/input/mod.rs
+/CODE-gen/src/arg_loader/mod.rs
+/CODE-gen/src/derive_resp_error/input/mod.rs
 /.idea/modules.xml
 /.idea/resp-result.iml
 /.idea/vcs.xml

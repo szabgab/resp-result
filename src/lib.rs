@@ -77,4 +77,6 @@ pub struct SetRespResultConfigureError;
 
 pub use axum_resp_result_macro::resp_result as rresult;
 pub use axum_resp_result_macro::resp_result;
+pub use axum_resp_result_macro::RespError;
 pub use convert::Fallible;
+pub use http::StatusCode;
