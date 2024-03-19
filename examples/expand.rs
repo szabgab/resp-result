@@ -1,11 +1,16 @@
-use error::PlainError;
 use axum_resp_result::RespError;
+use error::PlainError;
 fn main() {
     let _ret = test((1, 2), String::new());
     match _ret {
         RespResult::Success(_) => {}
         RespResult::Err(err) => {
-            println!("{:?},{:?}, {:?}", err.resp_message(), err.http_code(),err.log_message())
+            println!(
+                "{:?},{:?}, {:?}",
+                err.resp_message(),
+                err.http_code(),
+                err.log_message()
+            )
         }
     }
 }

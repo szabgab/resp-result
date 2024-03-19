@@ -31,7 +31,7 @@ impl ToTokens for RespErrorCodeGen {
             )
             .map(|(ident, code)| quote!(Self::#ident{..} => #code));
 
-        let token = quote!{
+        let token = quote! {
             impl ::axum_resp_result::RespError for #ident{
                 fn log_message(&self) -> std::borrow::Cow<'_, str> {
                     self.to_string().into()
