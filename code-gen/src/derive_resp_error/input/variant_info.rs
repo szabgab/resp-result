@@ -1,5 +1,5 @@
 use crate::derive_resp_error::structure::http_code::HttpCode;
-use darling::{FromMeta, FromVariant};
+use darling::FromVariant;
 
 #[derive(Debug, FromVariant)]
 #[darling(attributes(resp_result))]

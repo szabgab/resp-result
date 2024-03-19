@@ -24,9 +24,7 @@ impl ToTokens for RespErrorCodeGen {
             .iter()
             .filter_map(
                 |VariantCodeGen {
-                     ident,
-                     resp_msg,
-                     http_code,
+                     ident, http_code, ..
                  }| { Some((ident, http_code.as_ref()?)) },
             )
             .map(|(ident, code)| quote!(Self::#ident{..} => #code));
