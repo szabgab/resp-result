@@ -32,6 +32,7 @@ pub trait RespError {
     /// when `fix-field = true` using this value serialize error message
     ///
     /// ## Default
+    ///
     /// default is [`None`](Option::None), it will serialize to `null`
     #[inline]
     fn resp_message_default() -> Option<Cow<'static, str>> {
@@ -41,7 +42,8 @@ pub trait RespError {
     /// when `fix-field = true` using this value serialize extra error message
     ///
     /// ## Default
-    /// default is [`None`], it will be serialize to `null`
+    ///
+    /// default is [`None`], it will be serialized to `null`
     #[cfg(feature = "extra-error")]
     #[inline]
     fn extra_message_default() -> Option<Self::ExtraMessage> {

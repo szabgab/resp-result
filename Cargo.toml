@@ -18,12 +18,16 @@ rustdoc-args = ["--cfg", "docsrs"]
 name = "axum"
 required-features = ["tracing"]
 
+[[example]]
+name="expand"
+required-features = ["tracing"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
 log = ["tracing", "trace?/log"]
 tracing = ["dep:trace", "dep:tracing-unwrap"]
-extra-error = []
+extra-error = ["axum-resp-result-macro/extra-error"]
 nightly_try_v2 = []
 
 [dependencies]
@@ -36,7 +40,7 @@ tracing-unwrap = { version = "0.10.0", features = [
     "log-location",
 ], optional = true }
 futures = "0.3"
-axum-resp-result-macro = { version = "0.6.3" }
+axum-resp-result-macro = { version = "0.6.3", path = "code-gen"}
 
 [dependencies.serde]
 version = "1"
@@ -59,3 +63,4 @@ tracing-subscriber = { version = "0.3.16", features = [
 ] }
 tower = { version = "0.4.13", features = ["tracing"] }
 tower-http = { version = "0.5", features = ["trace"] }
+thiserror = "1.0.37"
